@@ -84,7 +84,7 @@ android {
 
 
     defaultConfig {
-        applicationId = "com.junkfood.seal"
+        applicationId = "com.abobicaduco.downloader"
         minSdk = 21
         targetSdk = 34
         versionCode = 11310
@@ -157,7 +157,7 @@ android {
             }
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "Seal Debug")
+            resValue("string", "app_name", "AboBI Caduco Debug")
         }
     }
 

@@ -57,7 +57,7 @@ object FixedAccentColors {
         @Composable get() = 30.a3
 }
 
-const val DEFAULT_SEED_COLOR = 0xa3d48d
+const val DEFAULT_SEED_COLOR = 0x7C4DFF
 
 /**
  * @receiver Seed number used for generating color
