@@ -44,7 +44,7 @@ android {
     buildFeatures { buildConfig = true }
 
     defaultConfig {
-        applicationId = "com.junkfood.seal"
+        applicationId = "com.abobicaduco.downloader"
         minSdk = 24
         targetSdk = 35
         versionCode = 200_000_150
@@ -110,7 +110,7 @@ android {
             }
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "Seal Debug")
+            resValue("string", "app_name", "AboBI Caduco Debug")
         }
     }
 
@@ -125,7 +125,7 @@ android {
         create("githubPreview") {
             dimension = "publishChannel"
             applicationIdSuffix = ".preview"
-            resValue("string", "app_name", "Seal Preview")
+            resValue("string", "app_name", "AboBI Caduco Preview")
         }
 
         create("fdroid") {
