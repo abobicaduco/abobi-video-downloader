@@ -100,10 +100,7 @@ android {
             }
         }
 
-        versionName = currentVersion.toVersionName().run {
-            if (!splitApks) "$this-(F-Droid)"
-            else this
-        }
+        versionName = currentVersion.toVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
