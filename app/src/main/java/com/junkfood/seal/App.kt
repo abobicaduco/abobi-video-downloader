@@ -32,6 +32,7 @@ import com.junkfood.seal.util.SDCARD_URI
 import com.junkfood.seal.util.UpdateUtil
 import com.junkfood.seal.util.VIDEO_DIRECTORY
 import com.junkfood.seal.util.YT_DLP_VERSION
+import com.startapp.sdk.adsbase.StartAppSDK
 import com.tencent.mmkv.MMKV
 import com.yausername.aria2c.Aria2c
 import com.yausername.ffmpeg.FFmpeg
@@ -57,6 +58,7 @@ class App : Application() {
         }
         applicationScope = CoroutineScope(SupervisorJob())
         DynamicColors.applyToActivitiesIfAvailable(this)
+        StartAppSDK.init(this, "205910406", false)
 
         clipboard = getSystemService()!!
         connectivityManager = getSystemService()!!

@@ -99,6 +99,7 @@ import com.junkfood.seal.ui.common.HapticFeedback.slightHapticFeedback
 import com.junkfood.seal.ui.common.LocalWindowWidthState
 import com.junkfood.seal.ui.component.ClearButton
 import com.junkfood.seal.ui.component.NavigationBarSpacer
+import com.junkfood.seal.ui.component.StartIoBanner
 import com.junkfood.seal.ui.component.OutlinedButtonWithIcon
 import com.junkfood.seal.ui.component.VideoCard
 import com.junkfood.seal.ui.theme.PreviewThemeLight
@@ -496,6 +497,7 @@ fun DownloadPageImpl(
 //                    }
 //                }
 //                    PreviewFormat()
+                StartIoBanner()
                 NavigationBarSpacer()
                 Spacer(modifier = Modifier.height(160.dp))
             }

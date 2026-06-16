@@ -241,6 +241,9 @@ dependencies {
     //MMKV (Ultrafast Key-Value storage)
     implementation(libs.mmkv)
 
+    // Start.io ads
+    implementation("com.startapp:inapp-sdk:4.+")
+
     //Unit testing libraries
     testImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.ext)
