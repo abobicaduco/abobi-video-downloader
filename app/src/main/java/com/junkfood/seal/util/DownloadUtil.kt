@@ -61,6 +61,8 @@ object DownloadUtil {
 
     private const val TAG = "DownloadUtil"
 
+  /** Best available quality, never exceeding 4K @ 60fps (yt-dlp `-S` fields). */
+    const val MAX_VIDEO_QUALITY_SORTER = "res:2160,fps:60"
 
     const val BASENAME = "%(title).200B"
 
@@ -369,13 +371,8 @@ object DownloadUtil {
             OPUS -> "acodec:opus"
             else -> ""
         }
-        val quality = when (audioQuality) {
-            HIGH -> "abr~192"
-            MEDIUM -> "abr~128"
-            LOW -> "abr~64"
-            else -> ""
-        }
-        return@run connectWithDelimiter(format, quality, delimiter = ",")
+        // Always pick the best available audio — no manual bitrate cap.
+        return@run connectWithDelimiter(format, "", delimiter = ",")
     }
 
     @CheckResult
@@ -390,17 +387,8 @@ object DownloadUtil {
 
             else -> ""
         }
-        val res = when (videoResolution) {
-            1 -> "res:2160"
-            2 -> "res:1440"
-            3 -> "res:1080"
-            4 -> "res:720"
-            5 -> "res:480"
-            6 -> "res:360"
-            7 -> "+res"
-            else -> ""
-        }
-        return@run connectWithDelimiter(format, res, delimiter = ",")
+        // Always pick the best available stream within the 2160p / 60fps ceiling.
+        return@run connectWithDelimiter(format, MAX_VIDEO_QUALITY_SORTER, delimiter = ",")
     }
 
     private fun YoutubeDLRequest.applyFormatSorter(
