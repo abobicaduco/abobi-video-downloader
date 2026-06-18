@@ -1,4 +1,4 @@
-# AboBI Caduco
+# Abobi Vídeo Downloader
 
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green?logo=android)](https://developer.android.com/)
 [![License: GPL-3.0](https://img.shields.io/badge/Licença-GPL--3.0-blue.svg)](LICENSE)
@@ -58,7 +58,7 @@ Baseado no projeto [Seal](https://github.com/JunkFood02/Seal) por JunkFood02 —
 
 ## Apoiar
 
-Se o AboBI Caduco te ajudou, considera um Pix de qualquer valor!
+Se o Abobi Vídeo Downloader te ajudou, considera um Pix de qualquer valor!
 
 **Chave Pix (aleatória):** `f74458dc-2a36-49bd-9250-1cef4365ebb8`
 
