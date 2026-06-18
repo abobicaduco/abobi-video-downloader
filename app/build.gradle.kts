@@ -54,7 +54,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 13,
-    versionPatch = 1,
+    versionPatch = 2,
 )
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
@@ -87,7 +87,7 @@ android {
         applicationId = "com.abobicaduco.downloader"
         minSdk = 21
         targetSdk = 34
-        versionCode = 11310
+        versionCode = 20130200
 
         if (splitApks) {
             splits {
@@ -169,7 +169,7 @@ android {
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "Seal-${defaultConfig.versionName}-${name}.apk"
+                "AboBI-Caduco-${defaultConfig.versionName}-${name}.apk"
         }
     }
 

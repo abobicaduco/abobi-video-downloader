@@ -92,47 +92,7 @@ import com.junkfood.seal.util.getStringDefault
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioQuickSettingsDialog(onDismissRequest: () -> Unit) {
-    var audioQuality by AUDIO_QUALITY.intState
     var audioFormat by AUDIO_FORMAT.intState
-
-    @Composable
-    fun audioQualitySelectField(modifier: Modifier = Modifier) {
-        var expanded by remember { mutableStateOf(false) }
-        var audioQualityText by remember { mutableStateOf(PreferenceStrings.getAudioQualityDesc()) }
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }) {
-            OutlinedTextField(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                value = audioQualityText,
-                onValueChange = {},
-                readOnly = true,
-                leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                label = { Text(stringResource(id = R.string.audio_quality)) }
-            )
-            ExposedDropdownMenu(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                expanded = expanded,
-                onDismissRequest = { expanded = false }) {
-                for (i in NOT_SPECIFIED..ULTRA_LOW)
-                    DropdownMenuItem(
-                        text = { Text(PreferenceStrings.getAudioQualityDesc(i)) },
-                        onClick = {
-                            audioQualityText =
-                                PreferenceStrings.getAudioQualityDesc(i)
-                            audioQuality = i
-                            expanded = false
-                        })
-            }
-        }
-    }
 
     @Composable
     fun audioFormatSelectField(modifier: Modifier = Modifier) {
@@ -188,17 +148,12 @@ fun AudioQuickSettingsDialog(onDismissRequest: () -> Unit) {
         }, confirmButton = {
             ConfirmButton {
                 AUDIO_FORMAT.updateInt(audioFormat)
-                AUDIO_QUALITY.updateInt(audioQuality)
                 onDismissRequest()
             }
         }, text = {
             LazyColumn() {
                 item {
                     audioFormatSelectField()
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-                item {
-                    audioQualitySelectField()
                 }
             }
         })

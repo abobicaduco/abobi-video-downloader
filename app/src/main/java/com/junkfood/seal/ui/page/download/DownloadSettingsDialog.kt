@@ -26,7 +26,6 @@ import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.DownloadDone
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.outlined.NewLabel
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.VideoFile
@@ -77,7 +76,6 @@ import com.junkfood.seal.ui.page.settings.format.AudioConversionQuickSettingsDia
 import com.junkfood.seal.ui.page.settings.format.AudioQuickSettingsDialog
 import com.junkfood.seal.ui.page.settings.format.FormatSortingDialog
 import com.junkfood.seal.ui.page.settings.format.VideoFormatDialog
-import com.junkfood.seal.ui.page.settings.format.VideoQualityDialog
 import com.junkfood.seal.ui.page.settings.network.CookiesQuickSettingsDialog
 import com.junkfood.seal.util.AUDIO_CONVERSION_FORMAT
 import com.junkfood.seal.util.AUDIO_CONVERT
@@ -90,7 +88,6 @@ import com.junkfood.seal.util.DatabaseUtil
 import com.junkfood.seal.util.DownloadUtil
 import com.junkfood.seal.util.DownloadUtil.toFormatSorter
 import com.junkfood.seal.util.EXTRACT_AUDIO
-import com.junkfood.seal.util.FORMAT_SELECTION
 import com.junkfood.seal.util.FORMAT_SORTING
 import com.junkfood.seal.util.FileUtil
 import com.junkfood.seal.util.FileUtil.getCookiesFile
@@ -109,7 +106,6 @@ import com.junkfood.seal.util.TEMPLATE_ID
 import com.junkfood.seal.util.THUMBNAIL
 import com.junkfood.seal.util.USE_PREVIOUS_SELECTION
 import com.junkfood.seal.util.VIDEO_FORMAT
-import com.junkfood.seal.util.VIDEO_QUALITY
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -136,9 +132,7 @@ fun DownloadSettingDialog(
     var thumbnail by remember { mutableStateOf(PreferenceUtil.getValue(THUMBNAIL)) }
     var playlist by remember { mutableStateOf(PreferenceUtil.getValue(PLAYLIST)) }
     var subtitle by remember { mutableStateOf(PreferenceUtil.getValue(SUBTITLE)) }
-    var formatSelection by FORMAT_SELECTION.booleanState
     var videoFormatPreference by VIDEO_FORMAT.intState
-    var videoQuality by VIDEO_QUALITY.intState
     var cookies by COOKIES.booleanState
     var formatSorting by FORMAT_SORTING.booleanState
 
@@ -164,7 +158,6 @@ fun DownloadSettingDialog(
 
 
     var showAudioSettingsDialog by remember { mutableStateOf(false) }
-    var showVideoQualityDialog by remember { mutableStateOf(false) }
     var showVideoFormatDialog by remember { mutableStateOf(false) }
     var showAudioConversionDialog by remember { mutableStateOf(false) }
     var showFormatSortingDialog by remember { mutableStateOf(false) }
@@ -264,28 +257,6 @@ fun DownloadSettingDialog(
                     }
                 }
             }
-            if (!isQuickDownload) {
-                DrawerSheetSubtitle(text = stringResource(id = R.string.format_selection))
-                Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                    SingleChoiceChip(
-                        selected = !formatSelection || playlist, onClick = {
-                            formatSelection = false
-                            FORMAT_SELECTION.updateBoolean(false)
-                        }, enabled = type != DownloadType.Command,
-                        label = stringResource(id = R.string.auto)
-                    )
-                    SingleChoiceChip(
-                        selected = formatSelection && !playlist,
-                        onClick = {
-                            formatSelection = true
-                            FORMAT_SELECTION.updateBoolean(true)
-                        },
-                        enabled = type != DownloadType.Command && !playlist,
-                        label = stringResource(id = R.string.custom)
-                    )
-                }
-            }
-
             DrawerSheetSubtitle(text = stringResource(id = if (type == DownloadType.Command) R.string.template_selection else R.string.format_preference))
             AnimatedContent(targetState = type, label = "", transitionSpec = {
                 (materialSharedAxisYIn(initialOffsetX = { it / 4 })).togetherWith(
@@ -342,14 +313,6 @@ fun DownloadSettingDialog(
                                     icon = Icons.Outlined.VideoFile,
                                     iconDescription = stringResource(id = R.string.video_format_preference)
                                 )
-                                ButtonChip(
-                                    label = PreferenceStrings.getVideoResolutionDescComp(),
-                                    icon = Icons.Outlined.HighQuality,
-                                    enabled = !formatSorting && type != DownloadType.None,
-                                    iconDescription = stringResource(id = R.string.video_quality)
-                                ) {
-                                    showVideoQualityDialog = true
-                                }
                             }
                             ButtonChip(
                                 onClick = {
@@ -435,7 +398,6 @@ fun DownloadSettingDialog(
                     VideoFilterChip(
                         selected = playlist, enabled = type != DownloadType.Command, onClick = {
                             playlist = !playlist
-                            formatSelection = false
                             updatePreferences()
                         }, label = stringResource(R.string.download_playlist)
                     )
@@ -594,14 +556,6 @@ fun DownloadSettingDialog(
             onConfirm = {
                 videoFormatPreference = it
                 VIDEO_FORMAT.updateInt(it)
-            })
-    }
-    if (showVideoQualityDialog) {
-        VideoQualityDialog(videoQuality = videoQuality,
-            onDismissRequest = { showVideoQualityDialog = false },
-            onConfirm = {
-                VIDEO_QUALITY.updateInt(it)
-                videoQuality = it
             })
     }
 
