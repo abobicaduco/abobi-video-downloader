@@ -169,7 +169,7 @@ android {
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "AboBI-Caduco-${defaultConfig.versionName}-${name}.apk"
+                "Abobi-Video-Downloader-${defaultConfig.versionName}-${name}.apk"
         }
     }
 
