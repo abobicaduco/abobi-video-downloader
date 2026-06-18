@@ -13,6 +13,10 @@
     <string name="download_error_msg">O arquivo não pôde ser baixado</string>
     <string name="download_start_msg">Baixar “%1$s”</string>
     <string name="fetch_info_error_msg">As informações do vídeo não foram encontradas</string>
+    <string name="fetch_info_error_tiktok">Não foi possível obter informações do TikTok. O TikTok costuma bloquear downloads no Android — importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="fetch_info_error_instagram">Não foi possível obter informações do Instagram. Importe cookies do Instagram em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_tiktok">Não foi possível baixar do TikTok. O TikTok bloqueia downloads no Android (sem impersonação curl_cffi). Importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_instagram">Não foi possível baixar do Instagram. Importe cookies em Configurações → Rede → Cookies ou abra o link no navegador integrado primeiro.</string>
     <string name="general_settings">Geral</string>
     <string name="extract_audio">Salvar como áudio</string>
     <string name="settings">Configurações</string>
@@ -131,7 +135,7 @@
     <string name="close">Fechar</string>
     <string name="download_notification">Notificação de download</string>
     <string name="download_range_selection">Seleção de playlist</string>
-    <string name="service_title">AboBI Caduco está fazendo o download…</string>
+    <string name="service_title">Abobi Vídeo Downloader está fazendo o download…</string>
     <string name="prefix">Prefixo</string>
     <string name="open_file">Abrir arquivo</string>
     <string name="restart">Reiniciar</string>
@@ -283,7 +287,7 @@
     <string name="sponsor">Patrocinador</string>
     <string name="temporary_directory_desc">Armazenar arquivos temporários no diretório interno</string>
     <string name="feedback">Feedback</string>
-    <string name="sponsor_msg">AboBI Caduco é gratuito e de código aberto. Se você gostou, considere apoiar o projeto no GitHub!</string>
+    <string name="sponsor_msg">Abobi Vídeo Downloader é gratuito e de código aberto. Se você gostou, considere apoiar o projeto no GitHub!</string>
     <string name="audio_format">Formato de áudio</string>
     <string name="no_downloaded_media">Nenhuma mídia baixada</string>
     <string name="beta_features">Beta</string>
@@ -294,7 +298,7 @@
     <string name="okay">Certo</string>
     <string name="got_it">Entendi</string>
     <string name="feature_unavailable">Recurso não disponível</string>
-    <string name="auto_update_disabled_msg">A atualização automática não está disponível para as versões do %1$s. Se você não tem o %1$s instalado em seu dispositivo, ou gostaria de visualizar novos recursos em desenvolvimento no AboBI Caduco, por favor, considere %2$s.</string>
+    <string name="auto_update_disabled_msg">A atualização automática não está disponível para as versões do %1$s. Se você não tem o %1$s instalado em seu dispositivo, ou gostaria de visualizar novos recursos em desenvolvimento no Abobi Vídeo Downloader, por favor, considere %2$s.</string>
     <string name="sponsor_msg2">Muito obrigado!</string>
     <string name="msg_from_developer">Mensagem do desenvolvedor</string>
     <string name="convert_subtitle">Converter legendas</string>
@@ -340,9 +344,9 @@
     </plurals>
     <string name="ua_header">Cabeçalho de requisição User-Agent</string>
     <string name="export_to_file">Exportar como arquivo</string>
-    <string name="custom_command_usage_msg">O yt-dlp é uma poderosa ferramenta de linha de comando para fazer download de vídeos. O AboBI Caduco facilita o uso do yt-dlp, fornecendo uma interface intuitiva, predefinições para comandos comuns e outros recursos adicionais.
+    <string name="custom_command_usage_msg">O yt-dlp é uma poderosa ferramenta de linha de comando para fazer download de vídeos. O Abobi Vídeo Downloader facilita o uso do yt-dlp, fornecendo uma interface intuitiva, predefinições para comandos comuns e outros recursos adicionais.
 \n
-\nPara uso avançado do yt-dlp, o AboBI Caduco permite criar, salvar e executar modelos de comandos personalizados diretamente, como em um terminal.
+\nPara uso avançado do yt-dlp, o Abobi Vídeo Downloader permite criar, salvar e executar modelos de comandos personalizados diretamente, como em um terminal.
 \n
 \nAo usar comandos personalizados, a maioria das opções e recursos da GUI seriam desabilitados.</string>
     <string name="presets">Predefinições</string>

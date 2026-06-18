@@ -54,7 +54,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 13,
-    versionPatch = 2,
+    versionPatch = 3,
 )
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
@@ -87,7 +87,7 @@ android {
         applicationId = "com.abobicaduco.downloader"
         minSdk = 21
         targetSdk = 34
-        versionCode = 20130200
+        versionCode = 20130300
 
         if (splitApks) {
             splits {
@@ -154,7 +154,7 @@ android {
             }
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "AboBI Caduco Debug")
+            resValue("string", "app_name", "Abobi Vídeo Downloader Debug")
         }
     }
 

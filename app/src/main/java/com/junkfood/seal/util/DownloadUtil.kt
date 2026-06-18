@@ -94,34 +94,24 @@ object DownloadUtil {
         playlistURL: String, downloadPreferences: DownloadPreferences = DownloadPreferences()
     ): Result<YoutubeDLInfo> = YoutubeDL.runCatching {
         ToastUtil.makeToastSuspend(context.getString(R.string.fetching_playlist_info))
-        val request = YoutubeDLRequest(playlistURL)
-        with(request) {
-//            addOption("--compat-options", "no-youtube-unavailable-videos")
-            addOption("--flat-playlist")
-            addOption("--dump-single-json")
-            addOption("-o", BASENAME)
-            addOption("-R", "1")
-            addOption("--socket-timeout", "5")
-            downloadPreferences.run {
-                if (extractAudio) {
-                    addOption("-x")
-                }
-                applyFormatSorter(this, toFormatSorter())
-                if (proxy) {
-                    enableProxy(proxyUrl)
-                }
-                if (forceIpv4) {
-                    addOption("-4")
-                }
-                if (cookies) {
-                    enableCookies(userAgentString)
-                }
-                if (restrictFilenames) {
-                    addOption("--restrict-filenames")
-                }
-            }
-        }
-        execute(request, playlistURL).out.run {
+        val platform = DownloadFallback.detectPlatform(playlistURL)
+        val strategies = DownloadFallback.strategiesFor(
+            platform, DownloadFallback.Phase.FETCH_INFO, downloadPreferences,
+        )
+        DownloadFallback.executeWithFallbacks(
+            url = playlistURL,
+            platform = platform,
+            phase = DownloadFallback.Phase.FETCH_INFO,
+            preferences = downloadPreferences,
+            strategies = strategies,
+            buildRequest = { effectiveUrl, strategy ->
+                buildPlaylistFetchRequest(
+                    url = effectiveUrl,
+                    preferences = downloadPreferences,
+                    skipFormatSorter = strategy.skipFormatSorter,
+                )
+            },
+        ).getOrThrow().out.run {
             val playlistInfo = jsonFormat.decodeFromString<PlaylistResult>(this)
             if (playlistInfo.type != "playlist") {
                 jsonFormat.decodeFromString<VideoInfo>(this)
@@ -131,9 +121,108 @@ object DownloadUtil {
 
 
     @CheckResult
-    private fun getVideoInfo(request: YoutubeDLRequest): Result<VideoInfo> = request.runCatching {
-        val response: YoutubeDLResponse = YoutubeDL.getInstance().execute(request, null, null)
-        jsonFormat.decodeFromString(response.out)
+    private fun buildPlaylistFetchRequest(
+        url: String,
+        preferences: DownloadPreferences,
+        skipFormatSorter: Boolean = false,
+    ): YoutubeDLRequest = YoutubeDLRequest(url).apply {
+        addOption("--flat-playlist")
+        addOption("--dump-single-json")
+        addOption("-o", BASENAME)
+        addOption("-R", "1")
+        addOption("--socket-timeout", "5")
+        if (preferences.extractAudio) {
+            addOption("-x")
+        }
+        if (!skipFormatSorter) {
+            applyFormatSorter(preferences, preferences.toFormatSorter())
+        }
+        if (preferences.proxy) {
+            enableProxy(preferences.proxyUrl)
+        }
+        if (preferences.forceIpv4) {
+            addOption("-4")
+        }
+        if (preferences.cookies) {
+            enableCookies(preferences.userAgentString)
+        }
+        if (preferences.restrictFilenames) {
+            addOption("--restrict-filenames")
+        }
+    }
+
+
+    @CheckResult
+    private fun buildFetchInfoRequest(
+        url: String,
+        preferences: DownloadPreferences,
+        playlistItem: Int = 0,
+        skipFormatSorter: Boolean = false,
+    ): YoutubeDLRequest = YoutubeDLRequest(url).apply {
+        addOption("-o", BASENAME)
+        if (preferences.restrictFilenames) {
+            addOption("--restrict-filenames")
+        }
+        if (preferences.extractAudio) {
+            addOption("-x")
+        }
+        if (!skipFormatSorter) {
+            applyFormatSorter(preferences, preferences.toFormatSorter())
+        }
+        if (preferences.cookies) {
+            enableCookies(preferences.userAgentString)
+        }
+        if (preferences.proxy) {
+            enableProxy(preferences.proxyUrl)
+        }
+        if (preferences.forceIpv4) {
+            addOption("-4")
+        }
+        if (preferences.autoSubtitle) {
+            addOption("--write-auto-subs")
+            if (!preferences.autoTranslatedSubtitles) {
+                addOption("--extractor-args", "youtube:skip=translated_subs")
+            }
+        }
+        if (playlistItem != 0) {
+            addOption("--playlist-items", playlistItem)
+            addOption("--dump-json")
+        } else {
+            addOption("--dump-single-json")
+        }
+        addOption("-R", "1")
+        addOption("--no-playlist")
+        addOption("--socket-timeout", "5")
+    }
+
+
+    @CheckResult
+    private fun executeFetchInfo(
+        url: String,
+        preferences: DownloadPreferences,
+        playlistItem: Int = 0,
+    ): Result<VideoInfo> {
+        val platform = DownloadFallback.detectPlatform(url)
+        val strategies = DownloadFallback.strategiesFor(
+            platform, DownloadFallback.Phase.FETCH_INFO, preferences,
+        )
+        return DownloadFallback.executeWithFallbacks(
+            url = url,
+            platform = platform,
+            phase = DownloadFallback.Phase.FETCH_INFO,
+            preferences = preferences,
+            strategies = strategies,
+            buildRequest = { effectiveUrl, strategy ->
+                buildFetchInfoRequest(
+                    url = effectiveUrl,
+                    preferences = preferences,
+                    playlistItem = playlistItem,
+                    skipFormatSorter = strategy.skipFormatSorter,
+                )
+            },
+        ).mapCatching { response ->
+            jsonFormat.decodeFromString<VideoInfo>(response.out)
+        }
     }
 
 
@@ -141,47 +230,8 @@ object DownloadUtil {
     fun fetchVideoInfoFromUrl(
         url: String, playlistItem: Int = 0,
         preferences: DownloadPreferences = DownloadPreferences()
-    ): Result<VideoInfo> {
-        with(preferences) {
-            val request = YoutubeDLRequest(url).apply {
-                addOption("-o", BASENAME)
-                if (restrictFilenames) {
-                    addOption("--restrict-filenames")
-                }
-                if (extractAudio) {
-                    addOption("-x")
-                }
-                applyFormatSorter(this@with, toFormatSorter())
-                if (cookies) {
-                    enableCookies(userAgentString)
-                }
-                if (proxy) {
-                    enableProxy(proxyUrl)
-                }
-                if (forceIpv4) {
-                    addOption("-4")
-                }
-                /*            if (debug) {
-                                addOption("-v")
-                            }*/
-                if (autoSubtitle) {
-                    addOption("--write-auto-subs")
-                    if (!autoTranslatedSubtitles) {
-                        addOption("--extractor-args", "youtube:skip=translated_subs")
-                    }
-                }
-                if (playlistItem != 0) {
-                    addOption("--playlist-items", playlistItem)
-                    addOption("--dump-json")
-                } else {
-                    addOption("--dump-single-json")
-                }
-                addOption("-R", "1")
-                addOption("--no-playlist")
-                addOption("--socket-timeout", "5")
-            }
-            return getVideoInfo(request)
-        }
+    ): Result<VideoInfo> = with(preferences) {
+        executeFetchInfo(url = url, preferences = this, playlistItem = playlistItem)
     }
 
     data class DownloadPreferences(
@@ -316,6 +366,7 @@ object DownloadUtil {
 
     private fun YoutubeDLRequest.addOptionsForVideoDownloads(
         downloadPreferences: DownloadPreferences,
+        skipFormatSorter: Boolean = false,
     ): YoutubeDLRequest = this.apply {
         downloadPreferences.run {
             addOption("--add-metadata")
@@ -325,7 +376,7 @@ object DownloadUtil {
                 if (mergeAudioStream) {
                     addOption("--audio-multistreams")
                 }
-            } else {
+            } else if (!skipFormatSorter) {
                 applyFormatSorter(this, toFormatSorter())
             }
             if (downloadSubtitle) {
@@ -518,13 +569,43 @@ object DownloadUtil {
                     )
                 )
             }
-            val request = YoutubeDLRequest(url)
-            val pathBuilder = StringBuilder()
-            val outputBuilder = StringBuilder()
+            if (useDownloadArchive) {
+                val archiveFile = context.getArchiveFile()
+                val archiveFileContent = archiveFile.readText()
+                if (archiveFileContent.contains("${videoInfo.extractor} ${videoInfo.id}")) {
+                    return Result.failure(YoutubeDLException(context.getString(R.string.download_archive_error)))
+                }
+            }
 
-            request.apply {
+            val downloadPath = buildString {
+                if (extractAudio || (videoInfo.vcodec == "none")) {
+                    append(if (privateDirectory) App.privateDownloadDir else audioDownloadDir)
+                } else {
+                    append(if (privateDirectory) App.privateDownloadDir else videoDownloadDir)
+                }
+                if (subdirectoryExtractor) append("/${videoInfo.extractorKey}")
+            }
+
+            val outputPathPrefix = buildString {
+                if (playlistItem != 0 && downloadPlaylist && subdirectoryPlaylistTitle && !videoInfo.playlist.isNullOrEmpty()) {
+                    append(PLAYLIST_TITLE_SUBDIRECTORY_PREFIX)
+                }
+            }
+
+            val outputTemplateResolved =
+                if (splitByChapter) {
+                    OUTPUT_TEMPLATE_SPLIT
+                } else if (videoClips.isEmpty()) {
+                    outputTemplate
+                } else {
+                    OUTPUT_TEMPLATE_CLIPS
+                }
+
+            fun buildDownloadRequest(
+                effectiveUrl: String,
+                strategy: DownloadFallback.Strategy,
+            ): YoutubeDLRequest = YoutubeDLRequest(effectiveUrl).apply {
                 addOption("--no-mtime")
-//                addOption("-v")
                 if (cookies) {
                     enableCookies(userAgentString)
                 }
@@ -541,116 +622,95 @@ object DownloadUtil {
                     addOption("-v")
                 }
                 if (useDownloadArchive) {
-                    val archiveFile = context.getArchiveFile()
-                    val archiveFileContent = archiveFile.readText()
-                    if (archiveFileContent.contains("${videoInfo.extractor} ${videoInfo.id}")) {
-                        return Result.failure(YoutubeDLException(context.getString(R.string.download_archive_error)))
-                    } else {
-                        useDownloadArchive()
-                    }
+                    useDownloadArchive()
                 }
-
                 if (rateLimit && maxDownloadRate.isNumberInRange(1, 1000000)) {
                     addOption("-r", "${maxDownloadRate}K")
                 }
-
                 if (playlistItem != 0 && downloadPlaylist) {
                     addOption("--playlist-items", playlistItem)
-                    if (subdirectoryPlaylistTitle && !videoInfo.playlist.isNullOrEmpty()) {
-                        outputBuilder.append(PLAYLIST_TITLE_SUBDIRECTORY_PREFIX)
-                    }
-//                    addOption("--compat-options", "no-youtube-unavailable-videos")
                 } else {
                     addOption("--no-playlist")
                 }
-
                 if (aria2c) {
                     enableAria2c()
                 } else if (concurrentFragments > 1) {
                     addOption("--concurrent-fragments", concurrentFragments)
                 }
-
                 if (extractAudio || (videoInfo.vcodec == "none")) {
-                    if (privateDirectory) pathBuilder.append(App.privateDownloadDir)
-                    else pathBuilder.append(audioDownloadDir)
                     addOptionsForAudioDownloads(
                         id = videoInfo.id,
                         preferences = downloadPreferences,
-                        playlistUrl = playlistUrl
+                        playlistUrl = playlistUrl,
                     )
                 } else {
-                    if (privateDirectory) pathBuilder.append(App.privateDownloadDir)
-                    else pathBuilder.append(videoDownloadDir)
-                    addOptionsForVideoDownloads(downloadPreferences)
+                    addOptionsForVideoDownloads(
+                        downloadPreferences,
+                        skipFormatSorter = strategy.skipFormatSorter,
+                    )
                 }
                 if (sponsorBlock) {
                     addOption("--sponsorblock-remove", sponsorBlockCategory)
                 }
-
                 if (createThumbnail) {
                     addOption("--write-thumbnail")
                     addOption("--convert-thumbnails", "png")
                 }
-                if (subdirectoryExtractor) {
-                    pathBuilder.append("/${videoInfo.extractorKey}")
-                }
-
                 if (sdcard) {
                     addOption("-P", context.getSdcardTempDir(videoInfo.id).absolutePath)
                 } else {
-                    addOption("-P", pathBuilder.toString())
+                    addOption("-P", downloadPath)
                 }
-
-
                 videoClips.forEach {
                     addOption(
-                        "--download-sections", "*%d-%d".format(locale = Locale.US, it.start, it.end)
+                        "--download-sections",
+                        "*%d-%d".format(locale = Locale.US, it.start, it.end),
                     )
                 }
                 if (newTitle.isNotEmpty()) {
                     addCommands(listOf("--replace-in-metadata", "title", ".+", newTitle))
                 }
-                if (Build.VERSION.SDK_INT > 23 && !sdcard) addOption(
-                    "-P", "temp:" + getExternalTempDir()
-                )
-
+                if (Build.VERSION.SDK_INT > 23 && !sdcard) {
+                    addOption("-P", "temp:" + getExternalTempDir())
+                }
                 if (splitByChapter) {
                     addOption("-o", OUTPUT_TEMPLATE_CHAPTERS)
                     addOption("--split-chapters")
                 }
+                addOption("-o", outputPathPrefix + outputTemplateResolved)
+            }
 
-                val output =
-                    if (splitByChapter) {
-                        OUTPUT_TEMPLATE_SPLIT
-                    } else if (videoClips.isEmpty()) {
-                        outputTemplate
-                    } else {
-                        OUTPUT_TEMPLATE_CLIPS
-                    }
+            val platform = DownloadFallback.detectPlatform(url)
+            val strategies = DownloadFallback.strategiesFor(
+                platform, DownloadFallback.Phase.DOWNLOAD, downloadPreferences,
+            )
 
-                addOption("-o", outputBuilder.append(output).toString())
-
-                for (s in request.buildCommand()) Log.d(TAG, s)
-            }.runCatching {
-                YoutubeDL.getInstance().execute(
-                    request = this, processId = taskId, callback = progressCallback
-                )
-            }.onFailure { th ->
+            DownloadFallback.executeWithFallbacks(
+                url = url,
+                platform = platform,
+                phase = DownloadFallback.Phase.DOWNLOAD,
+                preferences = downloadPreferences,
+                strategies = strategies,
+                buildRequest = ::buildDownloadRequest,
+                processId = taskId,
+                progressCallback = progressCallback,
+            ).onFailure { th ->
                 return if (sponsorBlock && th.message?.contains("Unable to communicate with SponsorBlock API") == true) {
                     th.printStackTrace()
                     onFinishDownloading(
                         preferences = this,
                         videoInfo = videoInfo,
-                        downloadPath = pathBuilder.toString(),
-                        sdcardUri = sdcardUri
+                        downloadPath = downloadPath,
+                        sdcardUri = sdcardUri,
                     )
                 } else Result.failure(th)
-            }
+            }.getOrThrow()
+
             return onFinishDownloading(
                 preferences = this,
                 videoInfo = videoInfo,
-                downloadPath = pathBuilder.toString(),
-                sdcardUri = sdcardUri
+                downloadPath = downloadPath,
+                sdcardUri = sdcardUri,
             )
         }
     }

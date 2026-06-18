@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">AboBI Caduco</string>
+    <string name="app_name" translatable="false">Abobi Vídeo Downloader</string>
     <string name="video_directory">Video folder</string>
     <string name="extract_audio">Save as audio</string>
     <string name="create_thumbnail">Save thumbnail</string>
@@ -17,6 +17,10 @@
     <string name="download_error_msg">Could not download file</string>
     <string name="download_start_msg">Download \"%1$s\"</string>
     <string name="fetch_info_error_msg">Could not fetch video info</string>
+    <string name="fetch_info_error_tiktok">Could not fetch TikTok video info. TikTok often blocks Android downloads — import TikTok cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="fetch_info_error_instagram">Could not fetch Instagram video info. Try importing Instagram cookies in Settings → Network → Cookies.</string>
+    <string name="download_error_tiktok">Could not download from TikTok. TikTok often blocks Android downloads (no curl_cffi impersonation). Import TikTok cookies in Settings → Network → Cookies and try again.</string>
+    <string name="download_error_instagram">Could not download from Instagram. Import Instagram cookies in Settings → Network → Cookies, or open the link in the in-app browser first.</string>
     <string name="general_settings">General</string>
     <string name="language">Display language</string>
     <string name="language_settings">Set display language</string>
