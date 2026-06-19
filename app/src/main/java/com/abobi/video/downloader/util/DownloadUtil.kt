@@ -77,6 +77,9 @@ object DownloadUtil {
 
     const val OUTPUT_TEMPLATE_DEFAULT = BASENAME + EXTENSION
 
+    /** Max parallel fragments when aria2c is off — no user-facing cap. */
+    private const val MAX_CONCURRENT_FRAGMENTS = 24
+
     const val OUTPUT_TEMPLATE_ID = "$BASENAME $ID$EXTENSION"
 
     private const val OUTPUT_TEMPLATE_CLIPS = "$BASENAME [$CLIP_TIMESTAMP]$EXTENSION"
@@ -290,7 +293,7 @@ object DownloadUtil {
         val autoSubtitle: Boolean = PreferenceUtil.getValue(AUTO_SUBTITLE),
         val autoTranslatedSubtitles: Boolean = AUTO_TRANSLATED_SUBTITLES.getBoolean(),
         val convertSubtitle: Int = CONVERT_SUBTITLE.getInt(),
-        val concurrentFragments: Int = CONCURRENT.getInt(),
+        val concurrentFragments: Int = MAX_CONCURRENT_FRAGMENTS,
         val sponsorBlock: Boolean = PreferenceUtil.getValue(SPONSORBLOCK),
         val sponsorBlockCategory: String = PreferenceUtil.getSponsorBlockCategories(),
         val cookies: Boolean = CookieHelper.cookiesFileAvailable(),
@@ -305,8 +308,8 @@ object DownloadUtil {
         val formatIdString: String = "",
         val videoResolution: Int = NOT_SPECIFIED,
         val privateMode: Boolean = PreferenceUtil.getValue(PRIVATE_MODE),
-        val rateLimit: Boolean = PreferenceUtil.getValue(RATE_LIMIT),
-        val maxDownloadRate: String = PreferenceUtil.getMaxDownloadRate(),
+        val rateLimit: Boolean = false,
+        val maxDownloadRate: String = "",
         val privateDirectory: Boolean = false,
         val cropArtwork: Boolean = PreferenceUtil.getValue(CROP_ARTWORK),
         val sdcard: Boolean = false,
@@ -337,6 +340,9 @@ object DownloadUtil {
             sortingFields = "",
             audioQuality = NOT_SPECIFIED,
             videoResolution = NOT_SPECIFIED,
+            rateLimit = false,
+            maxDownloadRate = "",
+            concurrentFragments = MAX_CONCURRENT_FRAGMENTS,
         )
 
         companion object {

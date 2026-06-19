@@ -188,7 +188,7 @@ private val BooleanPreferenceDefaults = mapOf(
     FORMAT_SELECTION to false,
     CUSTOM_COMMAND to false,
     CONFIGURE to false,
-    CELLULAR_DOWNLOAD to false,
+    CELLULAR_DOWNLOAD to true,
     YT_DLP_AUTO_UPDATE to true,
     NOTIFICATION to true,
     EMBED_METADATA to true,
@@ -207,7 +207,7 @@ private val BooleanPreferenceDefaults = mapOf(
 
 private val IntPreferenceDefaults = mapOf(
     TEMPLATE_ID to 0,
-    CONCURRENT to 8,
+    CONCURRENT to 24,
     LANGUAGE to SYSTEM_DEFAULT,
     PALETTE_STYLE to STYLE_VIBRANT,
     DARK_THEME_VALUE to DarkThemePreference.FOLLOW_SYSTEM,
@@ -266,8 +266,7 @@ object PreferenceUtil {
 
     fun getAudioFormat(): Int = AUDIO_FORMAT.getInt()
 
-    fun isNetworkAvailableForDownload() =
-        CELLULAR_DOWNLOAD.getBoolean() || !App.connectivityManager.isActiveNetworkMetered
+    fun isNetworkAvailableForDownload(): Boolean = true
 
     fun isAutoUpdateEnabled() = AUTO_UPDATE.getBoolean(!isFDroidBuild())
 

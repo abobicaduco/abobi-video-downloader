@@ -6,10 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Cookie
-import androidx.compose.material.icons.outlined.OfflineBolt
-import androidx.compose.material.icons.outlined.SignalCellular4Bar
-import androidx.compose.material.icons.outlined.SignalCellularConnectedNoInternet4Bar
-import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -28,18 +24,15 @@ import com.abobi.video.downloader.R
 import com.abobi.video.downloader.ui.common.booleanState
 import com.abobi.video.downloader.ui.component.BackButton
 import com.abobi.video.downloader.ui.component.LargeTopAppBar
-import com.abobi.video.downloader.ui.component.PreferenceInfo
 import com.abobi.video.downloader.ui.component.PreferenceItem
 import com.abobi.video.downloader.ui.component.PreferenceSubtitle
 import com.abobi.video.downloader.ui.component.PreferenceSwitch
 import com.abobi.video.downloader.ui.component.PreferenceSwitchWithDivider
 import com.abobi.video.downloader.util.ARIA2C
-import com.abobi.video.downloader.util.CELLULAR_DOWNLOAD
 import com.abobi.video.downloader.util.PROXY
 import com.abobi.video.downloader.util.PreferenceUtil.getValue
 import com.abobi.video.downloader.util.PreferenceUtil.updateBoolean
 import com.abobi.video.downloader.util.PreferenceUtil.updateValue
-import com.abobi.video.downloader.util.RATE_LIMIT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,8 +45,6 @@ fun NetworkPreferences(
         canScroll = { true }
     )
 
-    var showConcurrentDownloadDialog by remember { mutableStateOf(false) }
-    var showRateLimitDialog by remember { mutableStateOf(false) }
     var showProxyDialog by remember { mutableStateOf(false) }
     var aria2c by remember { mutableStateOf(getValue(ARIA2C)) }
     var proxy by PROXY.booleanState
@@ -80,50 +71,6 @@ fun NetworkPreferences(
                 item {
                     PreferenceSubtitle(text = stringResource(R.string.general_settings))
                 }
-                item {
-                    var isRateLimitEnabled by remember {
-                        mutableStateOf(getValue(RATE_LIMIT))
-                    }
-
-                    PreferenceSwitchWithDivider(
-                        title = stringResource(R.string.rate_limit),
-                        description = stringResource(R.string.rate_limit_desc),
-                        icon = Icons.Outlined.Speed,
-                        isChecked = isRateLimitEnabled,
-                        onChecked = {
-                            isRateLimitEnabled = !isRateLimitEnabled
-                            updateValue(
-                                RATE_LIMIT,
-                                isRateLimitEnabled
-                            )
-                        },
-                        onClick = { showRateLimitDialog = true }
-                    )
-                }
-                item {
-                    var isDownloadWithCellularEnabled by remember {
-                        mutableStateOf(getValue(CELLULAR_DOWNLOAD))
-                    }
-                    PreferenceSwitch(
-                        title = stringResource(R.string.download_with_cellular),
-                        description = stringResource(R.string.download_with_cellular_desc),
-                        icon = if (isDownloadWithCellularEnabled) Icons.Outlined.SignalCellular4Bar
-                        else Icons.Outlined.SignalCellularConnectedNoInternet4Bar,
-                        isChecked = isDownloadWithCellularEnabled,
-                        onClick = {
-                            isDownloadWithCellularEnabled = !isDownloadWithCellularEnabled
-                            updateValue(
-                                CELLULAR_DOWNLOAD,
-                                isDownloadWithCellularEnabled
-                            )
-                        }
-                    )
-                }
-
-                item {
-                    PreferenceSubtitle(text = stringResource(id = R.string.advanced_settings))
-                }
-
                 item {
                     PreferenceSwitch(
                         title = stringResource(R.string.aria2),
@@ -152,34 +99,14 @@ fun NetworkPreferences(
                     )
                 }
                 item {
-                    PreferenceItem(
-                        title = stringResource(id = R.string.concurrent_download),
-                        description = stringResource(R.string.concurrent_download_desc),
-                        icon = Icons.Outlined.OfflineBolt,
-                        enabled = !aria2c,
-                    ) { showConcurrentDownloadDialog = true }
-                }
-                item {
                     PreferenceItem(title = stringResource(R.string.cookies),
                         description = stringResource(R.string.cookies_desc),
                         icon = Icons.Outlined.Cookie,
                         onClick = { navigateToCookieProfilePage() })
                 }
-
             }
         })
 
-    if (showConcurrentDownloadDialog) {
-        ConcurrentDownloadDialog {
-            showConcurrentDownloadDialog = false
-        }
-    }
-
-    if (showRateLimitDialog) {
-        RateLimitDialog {
-            showRateLimitDialog = false
-        }
-    }
     if (showProxyDialog) {
         ProxyConfigurationDialog {
             showProxyDialog = false

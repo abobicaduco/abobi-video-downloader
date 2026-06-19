@@ -100,7 +100,6 @@ import com.abobi.video.downloader.ui.component.OutlinedButtonWithIcon
 import com.abobi.video.downloader.ui.component.VideoCard
 import com.abobi.video.downloader.ui.theme.PreviewThemeLight
 import com.abobi.video.downloader.ui.theme.SealTheme
-import com.abobi.video.downloader.util.CELLULAR_DOWNLOAD
 import com.abobi.video.downloader.util.EXTRACT_AUDIO
 import com.abobi.video.downloader.util.NOTIFICATION
 import com.abobi.video.downloader.util.PreferenceUtil
@@ -142,14 +141,8 @@ fun DownloadPage(
     val clipboardManager = LocalClipboardManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val view = LocalView.current
-    var showMeteredNetworkDialog by remember { mutableStateOf(false) }
-
     val checkNetworkOrDownload = {
-        if (!PreferenceUtil.isNetworkAvailableForDownload()) {
-            showMeteredNetworkDialog = true
-        } else {
-            downloadViewModel.startDownloadVideo()
-        }
+        downloadViewModel.startDownloadVideo()
     }
 
     val storagePermissions = rememberMultiplePermissionsState(
@@ -193,21 +186,6 @@ fun DownloadPage(
             notificationPermission?.launchPermissionRequest()
         })
     }
-
-    if (showMeteredNetworkDialog) {
-        MeteredNetworkDialog(
-            onDismissRequest = { showMeteredNetworkDialog = false },
-            onAllowOnceConfirm = {
-                downloadViewModel.startDownloadVideo()
-                showMeteredNetworkDialog = false
-            },
-            onAllowAlwaysConfirm = {
-                downloadViewModel.startDownloadVideo()
-                CELLULAR_DOWNLOAD.updateBoolean(true)
-                showMeteredNetworkDialog = false
-            })
-    }
-
 
     DisposableEffect(viewState.showPlaylistSelectionDialog) {
         if (collectionInvestigation != null && viewState.showPlaylistSelectionDialog) {
