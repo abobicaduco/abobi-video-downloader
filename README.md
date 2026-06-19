@@ -21,6 +21,8 @@
 
 ## Download
 
+> **Branch de desenvolvimento:** `caduco-stable` (o código novo vai aqui; `main` espelha essa branch.)
+
 APK arm64 (release) — **GitHub (principal)** ou **GitLab (plano B)**:
 
 | Origem | Onde baixar |
