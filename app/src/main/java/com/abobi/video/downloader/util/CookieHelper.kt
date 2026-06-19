@@ -129,6 +129,15 @@ object CookieHelper {
         return siteFile.takeIf { it.exists() && it.length() > 0 }
     }
 
+    /** Prefer per-site cookies file when present; otherwise fall back to the master file. */
+    fun cookiesFileForUrl(downloadUrl: String): File? {
+        getSiteCookieFile(downloadUrl)
+            ?.takeIf { it.length() > 50 && countCookiesInFile(it) > 0 }
+            ?.let { return it }
+        val master = context.getCookiesFile()
+        return master.takeIf { it.exists() && it.length() > 50 }
+    }
+
     fun hasCookiesForDomain(domain: String): Boolean =
         DownloadUtil.getCookieListFromDatabase().getOrNull()
             ?.any { it.domain.contains(domain, ignoreCase = true) } == true
@@ -148,4 +157,17 @@ object CookieHelper {
 
     private fun countCookiesInFile(file: File): Int =
         file.readLines().count { line -> line.isNotBlank() && !line.startsWith("#") }
+
+    /** Strip tracking query params that can confuse yt-dlp on Instagram reel/post URLs. */
+    fun normalizeDownloadUrl(url: String): String {
+        if ("instagram.com" !in url.lowercase()) return url
+        val base = url.substringBefore('?').trimEnd('/')
+        return if (
+            Regex("instagram\\.com/(reel|p|tv)/", RegexOption.IGNORE_CASE).containsMatchIn(base)
+        ) {
+            base
+        } else {
+            url.substringBefore('?')
+        }
+    }
 }

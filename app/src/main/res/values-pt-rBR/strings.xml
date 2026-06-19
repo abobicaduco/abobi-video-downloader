@@ -54,6 +54,7 @@
     <string name="follow_system">Sistema</string>
     <string name="settings_before_download_text">Ajustar este download</string>
     <string name="error_copied">Relatório de erros copiado para a área de transferência</string>
+    <string name="error_auto_copied">Relatório completo copiado automaticamente para a área de transferência</string>
     <string name="paste">Colar</string>
     <string name="yt_dlp_docs">Referências de uso do yt-dlp</string>
     <string name="convert_audio_format">Converter formato de áudio</string>

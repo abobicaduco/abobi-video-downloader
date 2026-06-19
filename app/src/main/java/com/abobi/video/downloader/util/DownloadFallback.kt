@@ -75,7 +75,7 @@ object DownloadFallback {
                 Strategy("cookies") { prefs ->
                     applyUserAgent(this, TIKTOK_APP_UA, prefs)
                     addOption("--sleep-requests", "1")
-                    enableCookiesForFallback(prefs)
+                    enableCookiesForFallback(prefs, url)
                 },
             )
         }
@@ -137,7 +137,7 @@ object DownloadFallback {
             strategies.add(
                 Strategy("cookies") { prefs ->
                     applyUserAgent(this, MOBILE_UA, prefs)
-                    enableCookiesForFallback(prefs)
+                    enableCookiesForFallback(prefs, url)
                     addOption("--add-header", "Referer:https://www.instagram.com/")
                 },
             )
@@ -231,6 +231,7 @@ object DownloadFallback {
         }
 
         var lastError: Throwable? = null
+        val strategyLog = StringBuilder()
         for ((index, strategy) in strategies.withIndex()) {
             val effectiveUrl = strategy.urlTransform(url)
             val request = buildRequest(effectiveUrl, strategy).apply {
@@ -247,15 +248,31 @@ object DownloadFallback {
                 return Result.success(response)
             }.onFailure { error ->
                 lastError = error
+                if (strategyLog.isNotEmpty()) strategyLog.append('\n')
+                strategyLog
+                    .append('[').append(index + 1).append('/').append(strategies.size).append("] ")
+                    .append(strategy.name)
+                    .append(" url=").append(effectiveUrl)
+                    .append("\n  error: ").append(error.message)
                 Log.w(TAG, "Strategy '${strategy.name}' failed: ${error.message}")
             }
         }
         return Result.failure(
-            enrichFailure(platform, phase, lastError ?: YoutubeDLException("All strategies failed")),
+            enrichFailure(
+                platform,
+                phase,
+                lastError ?: YoutubeDLException("All strategies failed"),
+                strategyLog.toString(),
+            ),
         )
     }
 
-    fun enrichFailure(platform: Platform, phase: Phase, cause: Throwable): Throwable {
+    fun enrichFailure(
+        platform: Platform,
+        phase: Phase,
+        cause: Throwable,
+        strategyLog: String = "",
+    ): Throwable {
         val message = when (platform) {
             Platform.TIKTOK -> when (phase) {
                 Phase.FETCH_INFO -> context.getString(R.string.fetch_info_error_tiktok)
@@ -270,8 +287,12 @@ object DownloadFallback {
                 else R.string.download_error_msg,
             )
         }
-        return if (message == cause.message) cause
-        else YoutubeDLException(message).apply { initCause(cause) }
+        if (message == cause.message && strategyLog.isBlank()) return cause
+        return DownloadDebugException(
+            userMessage = message,
+            debugDetails = strategyLog,
+            cause = cause,
+        )
     }
 
     private fun applyUserAgent(
@@ -286,11 +307,16 @@ object DownloadFallback {
 
     private fun YoutubeDLRequest.enableCookiesForFallback(
         preferences: DownloadUtil.DownloadPreferences,
+        url: String,
     ) {
-        if (CookieHelper.cookiesFileAvailable()) {
-            addOption("--cookies", context.getCookiesFile().absolutePath)
+        val cookiesFile = CookieHelper.cookiesFileForUrl(url) ?: context.getCookiesFile()
+        if (cookiesFile.exists() && cookiesFile.length() > 50) {
+            addOption("--cookies", cookiesFile.absolutePath)
             if (preferences.userAgentString.isNotEmpty()) {
                 addOption("--add-header", "User-Agent:${preferences.userAgentString}")
+            }
+            CookieHelper.buildCookieHeaderForUrl(url)?.let { header ->
+                addOption("--add-header", "Cookie:$header")
             }
         }
     }

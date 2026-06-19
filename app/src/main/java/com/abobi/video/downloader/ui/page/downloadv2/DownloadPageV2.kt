@@ -392,6 +392,7 @@ fun ErrorMessage(
     modifier: Modifier = Modifier,
     url: String,
     errorReport: String = "",
+    fullReport: String = "",
     errorMessageResId: Int,
 ) {
     val clipboardManager = LocalClipboardManager.current
@@ -400,9 +401,12 @@ fun ErrorMessage(
         .padding(top = 8.dp)
         .fillMaxWidth()
         .run {
-            if (errorReport.isNotEmpty()) {
+            if (errorReport.isNotEmpty() || fullReport.isNotEmpty()) {
                 clip(MaterialTheme.shapes.large).clickable {
-                    clipboardManager.setText(AnnotatedString(App.getVersionReport() + "\nURL: $url\n$errorReport"))
+                    val report = fullReport.ifEmpty {
+                        App.getVersionReport() + "\nURL: $url\n$errorReport"
+                    }
+                    clipboardManager.setText(AnnotatedString(report))
                     ToastUtil.makeToastSuspend(context.getString(R.string.error_copied))
                 }
             } else this

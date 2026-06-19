@@ -184,7 +184,7 @@ object DownloadUtil {
             enableProxy(preferences.proxyUrl)
         }
         if (CookieHelper.shouldUseCookies(url)) {
-            enableCookies(preferences.userAgentString)
+            enableCookies(url, preferences.userAgentString)
         }
     }
 
@@ -204,7 +204,7 @@ object DownloadUtil {
             applyFormatSorter(preferences, preferences.toFormatSorter())
         }
         if (CookieHelper.shouldUseCookies(url)) {
-            enableCookies(preferences.userAgentString)
+            enableCookies(url, preferences.userAgentString)
         }
         if (preferences.proxy) {
             enableProxy(preferences.proxyUrl)
@@ -233,12 +233,13 @@ object DownloadUtil {
         preferences: DownloadPreferences,
         playlistItem: Int = 0,
     ): Result<VideoInfo> {
-        val platform = DownloadFallback.detectPlatform(url)
+        val normalizedUrl = CookieHelper.normalizeDownloadUrl(url)
+        val platform = DownloadFallback.detectPlatform(normalizedUrl)
         val strategies = DownloadFallback.strategiesFor(
-            platform, DownloadFallback.Phase.FETCH_INFO, preferences, url,
+            platform, DownloadFallback.Phase.FETCH_INFO, preferences, normalizedUrl,
         )
         val ytdlpResult = DownloadFallback.executeWithFallbacks(
-            url = url,
+            url = normalizedUrl,
             platform = platform,
             phase = DownloadFallback.Phase.FETCH_INFO,
             preferences = preferences,
@@ -262,7 +263,7 @@ object DownloadUtil {
                     .onFailure { Log.w(TAG, "TikTok mirror fallback failed: ${it.message}") }
                     .recoverCatching { ytdlpResult.getOrThrow() }
             DownloadFallback.Platform.INSTAGRAM ->
-                PlatformAlternativeDownloader.fetchInstagram(url, preferences.extractAudio)
+                PlatformAlternativeDownloader.fetchInstagram(normalizedUrl, preferences.extractAudio)
                     .map { PlatformAlternativeDownloader.toVideoInfo(it, preferences.extractAudio) }
                     .onFailure { Log.w(TAG, "Instagram mirror fallback failed: ${it.message}") }
                     .recoverCatching { ytdlpResult.getOrThrow() }
@@ -358,12 +359,20 @@ object DownloadUtil {
         }
     }
 
-    private fun YoutubeDLRequest.enableCookies(userAgentString: String): YoutubeDLRequest =
-        this.addOption("--cookies", context.getCookiesFile().absolutePath).apply {
+    private fun YoutubeDLRequest.enableCookies(
+        url: String,
+        userAgentString: String,
+    ): YoutubeDLRequest {
+        val cookiesFile = CookieHelper.cookiesFileForUrl(url) ?: context.getCookiesFile()
+        return this.addOption("--cookies", cookiesFile.absolutePath).apply {
             if (userAgentString.isNotEmpty()) {
                 addOption("--add-header", "User-Agent:$userAgentString")
             }
+            CookieHelper.buildCookieHeaderForUrl(url)?.let { header ->
+                addOption("--add-header", "Cookie:$header")
+            }
         }
+    }
 
     private fun YoutubeDLRequest.enableProxy(proxyUrl: String): YoutubeDLRequest =
         this.addOption("--proxy", proxyUrl)
@@ -690,13 +699,15 @@ object DownloadUtil {
                 )
             }
 
-            val url = playlistUrl.ifEmpty {
-                videoInfo.originalUrl ?: videoInfo.webpageUrl ?: return Result.failure(
-                    Throwable(
-                        context.getString(R.string.fetch_info_error_msg)
+            val url = CookieHelper.normalizeDownloadUrl(
+                playlistUrl.ifEmpty {
+                    videoInfo.originalUrl ?: videoInfo.webpageUrl ?: return Result.failure(
+                        Throwable(
+                            context.getString(R.string.fetch_info_error_msg)
+                        )
                     )
-                )
-            }
+                },
+            )
             if (useDownloadArchive) {
                 val archiveFile = context.getArchiveFile()
                 val archiveFileContent = archiveFile.readText()
@@ -735,7 +746,7 @@ object DownloadUtil {
             ): YoutubeDLRequest = YoutubeDLRequest(effectiveUrl).apply {
                 addOption("--no-mtime")
                 if (CookieHelper.shouldUseCookies(effectiveUrl)) {
-                    enableCookies(userAgentString)
+                    enableCookies(effectiveUrl, userAgentString)
                 }
                 if (proxy) {
                     enableProxy(proxyUrl)
@@ -929,7 +940,7 @@ object DownloadUtil {
                         ).absolutePath
                     )
                     if (CookieHelper.shouldUseCookies(url)) {
-                        enableCookies(userAgentString)
+                        enableCookies(url, userAgentString)
                     }
                 }
 

@@ -79,6 +79,7 @@
     <string name="settings_before_download_desc">Configure preferences before downloading</string>
     <string name="settings_before_download_text">Adjust this download</string>
     <string name="error_copied">Error report copied to clipboard</string>
+    <string name="error_auto_copied">Full error report copied to clipboard automatically</string>
     <string name="thumbnail">Thumbnail</string>
     <string name="paste">Paste</string>
     <string name="yt_dlp_docs">Yt-dlp usage references</string>

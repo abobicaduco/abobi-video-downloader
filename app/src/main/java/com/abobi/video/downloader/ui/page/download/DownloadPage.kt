@@ -401,10 +401,14 @@ fun DownloadPageImpl(
                 AnimatedVisibility(visible = errorState != Downloader.ErrorState.None) {
                     ErrorMessage(
                         title = errorState.title,
-                        errorReport = errorState.report
+                        errorReport = errorState.report,
+                        showAutoCopiedHint = true,
                     ) {
                         view.longPressHapticFeedback()
-                        clipboardManager.setText(AnnotatedString(App.getVersionReport() + "\nURL: ${errorState.url}\n${errorState.report}"))
+                        val report = errorState.fullReport.ifEmpty {
+                            App.getVersionReport() + "\nURL: ${errorState.url}\n${errorState.report}"
+                        }
+                        clipboardManager.setText(AnnotatedString(report))
                         ToastUtil.makeToast(R.string.error_copied)
                     }
                 }
@@ -552,6 +556,7 @@ fun ErrorMessage(
     modifier: Modifier = Modifier,
     title: String,
     errorReport: String,
+    showAutoCopiedHint: Boolean = false,
     onButtonClicked: () -> Unit = {}
 ) {
     val view = LocalView.current
@@ -587,6 +592,13 @@ fun ErrorMessage(
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.titleMedium
                     )
+                    if (showAutoCopiedHint) {
+                        Text(
+                            text = stringResource(id = R.string.error_auto_copied),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
+                        )
+                    }
                 }
             }
 

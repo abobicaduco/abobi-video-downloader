@@ -17,6 +17,7 @@ import com.abobi.video.downloader.util.COMMAND_DIRECTORY
 import com.abobi.video.downloader.util.CollectionInvestigationResult
 import com.abobi.video.downloader.util.DownloadUtil
 import com.abobi.video.downloader.util.Entries
+import com.abobi.video.downloader.util.ErrorReportUtil
 import com.abobi.video.downloader.util.FileUtil
 import com.abobi.video.downloader.util.Format
 import com.abobi.video.downloader.util.NotificationUtil
@@ -62,12 +63,19 @@ object Downloader {
     sealed class ErrorState(
         open val url: String = "",
         open val report: String = "",
+        open val fullReport: String = "",
     ) {
-        data class DownloadError(override val url: String, override val report: String) :
-            ErrorState(url = url, report = report)
+        data class DownloadError(
+            override val url: String,
+            override val report: String,
+            override val fullReport: String = "",
+        ) : ErrorState(url = url, report = report, fullReport = fullReport)
 
-        data class FetchInfoError(override val url: String, override val report: String) :
-            ErrorState(url = url, report = report)
+        data class FetchInfoError(
+            override val url: String,
+            override val report: String,
+            override val fullReport: String = "",
+        ) : ErrorState(url = url, report = report, fullReport = fullReport)
 
         data object None : ErrorState()
 
@@ -303,12 +311,12 @@ object Downloader {
         mutableErrorState.update { ErrorState.None }
     }
 
-    private fun fetchInfoError(url: String, errorReport: String) {
-        mutableErrorState.update { ErrorState.FetchInfoError(url, errorReport) }
+    private fun fetchInfoError(url: String, errorReport: String, fullReport: String = "") {
+        mutableErrorState.update { ErrorState.FetchInfoError(url, errorReport, fullReport) }
     }
 
-    private fun downloadError(url: String, errorReport: String) {
-        mutableErrorState.update { ErrorState.DownloadError(url, errorReport) }
+    private fun downloadError(url: String, errorReport: String, fullReport: String = "") {
+        mutableErrorState.update { ErrorState.DownloadError(url, errorReport, fullReport) }
     }
 
 
@@ -717,14 +725,28 @@ object Downloader {
             if (isFetchingInfo) R.string.fetch_info_error_msg else R.string.download_error_msg
         val errorMessage = th.message?.takeIf { it.isNotBlank() }
             ?: context.getString(resId)
+        val fullReport = ErrorReportUtil.buildFullReport(
+            url = url,
+            th = th,
+            title = title,
+        )
+        ErrorReportUtil.copyAndNotify(fullReport)
         ToastUtil.makeToastSuspend(errorMessage)
 
         val notificationTitle = title ?: url
 
         if (isFetchingInfo) {
-            fetchInfoError(url = url.toString(), errorReport = th.message.toString())
+            fetchInfoError(
+                url = url.toString(),
+                errorReport = errorMessage,
+                fullReport = fullReport,
+            )
         } else {
-            downloadError(url = url.toString(), errorReport = th.message.toString())
+            downloadError(
+                url = url.toString(),
+                errorReport = errorMessage,
+                fullReport = fullReport,
+            )
         }
 
         notificationId?.let {
