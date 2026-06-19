@@ -22,7 +22,9 @@ Fork do [Seal](https://github.com/JunkFood02/Seal) com branding AboBI e anúncio
 
 ## Download
 
-Baixe o APK arm64 mais recente na aba [Releases](https://github.com/abobicaduco/abobi-caduco/releases).
+APK arm64 (release): baixe o artefato **`release-apks`** no workflow [Build Release APK](https://github.com/abobicaduco/abobi-video-downloader/actions/workflows/android.yml) (branch `caduco-stable` → *Run workflow* ou último run concluído → *Artifacts*).
+
+Dentro do zip: `Abobi-Video-Downloader-1.13.3-*-release.apk`.
 
 ---
 
@@ -31,8 +33,8 @@ Baixe o APK arm64 mais recente na aba [Releases](https://github.com/abobicaduco/
 **Pré-requisitos:** Android Studio · SDK API 26+ · JDK 17 · Kotlin
 
 ```bash
-git clone https://github.com/abobicaduco/abobi-caduco.git
-cd abobi-caduco
+git clone https://github.com/abobicaduco/abobi-video-downloader.git
+cd abobi-video-downloader
 ./gradlew assembleRelease -PnoSplits
 ```
 
@@ -50,9 +52,8 @@ Baseado no projeto [Seal](https://github.com/JunkFood02/Seal) por JunkFood02 —
 |---|---|
 | [AboBI Player](https://github.com/abobicaduco/abobiplayer) | Player de vídeo local para Android |
 | [AboBI Reação](https://github.com/abobicaduco/abobireacao) | Grave sua reação ao vivo enquanto assiste a vídeos |
-| [AboBI Video Downloader](https://github.com/abobicaduco/abobi-video-downloader) | Baixe vídeos e músicas do YouTube para o PC |
 | [AboBI Sonora](https://github.com/abobicaduco/abobi-sonora) | Player de música offline para Android |
-| [AboBI Ferramentas](https://abobiferramentas.com) | 90+ ferramentas online gratuitas |
+| [AboBI Ferramentas](https://abobiferramentas.com) | Catálogo de APKs MOD e FOSS para Android |
 
 ---
 
