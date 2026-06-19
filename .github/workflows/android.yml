@@ -35,7 +35,7 @@ jobs:
 
     - name: Sign app APK
       id: sign_app
-      if: ${{ secrets.SIGNING_KEY != '' }}
+      continue-on-error: true
       uses: ilharp/sign-android-release@nightly
       with:
         releaseDir: app/build/outputs/apk/release
