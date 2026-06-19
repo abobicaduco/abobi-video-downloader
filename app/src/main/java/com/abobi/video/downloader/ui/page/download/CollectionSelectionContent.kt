@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.abobi.video.downloader.ui.page.download
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -276,6 +278,7 @@ private fun collectionDescription(result: CollectionInvestigationResult): String
             stringResource(R.string.download_selection_desc).format(result.title.orEmpty())
     }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionEntryRow(
     item: SelectableCollectionEntry,
