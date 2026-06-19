@@ -2,28 +2,31 @@ name: Android CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [caduco-stable, main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
       - name: set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+          cache: 'gradle'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platforms;android-34 build-tools;34.0.0
 
       - uses: gradle/actions/setup-gradle@v3
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew assembleDebug --no-daemon
