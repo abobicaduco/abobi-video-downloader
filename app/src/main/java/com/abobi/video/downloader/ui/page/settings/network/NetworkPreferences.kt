@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Cookie
-import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,17 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.abobi.video.downloader.R
-import com.abobi.video.downloader.ui.common.booleanState
 import com.abobi.video.downloader.ui.component.BackButton
 import com.abobi.video.downloader.ui.component.LargeTopAppBar
 import com.abobi.video.downloader.ui.component.PreferenceItem
 import com.abobi.video.downloader.ui.component.PreferenceSubtitle
 import com.abobi.video.downloader.ui.component.PreferenceSwitch
-import com.abobi.video.downloader.ui.component.PreferenceSwitchWithDivider
 import com.abobi.video.downloader.util.ARIA2C
-import com.abobi.video.downloader.util.PROXY
 import com.abobi.video.downloader.util.PreferenceUtil.getValue
-import com.abobi.video.downloader.util.PreferenceUtil.updateBoolean
 import com.abobi.video.downloader.util.PreferenceUtil.updateValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,9 +40,7 @@ fun NetworkPreferences(
         canScroll = { true }
     )
 
-    var showProxyDialog by remember { mutableStateOf(false) }
     var aria2c by remember { mutableStateOf(getValue(ARIA2C)) }
-    var proxy by PROXY.booleanState
 
     Scaffold(
         modifier = Modifier
@@ -86,19 +79,6 @@ fun NetworkPreferences(
                     )
                 }
                 item {
-                    PreferenceSwitchWithDivider(
-                        title = stringResource(id = R.string.proxy),
-                        description = stringResource(id = R.string.proxy_desc),
-                        icon = Icons.Outlined.VpnKey,
-                        isChecked = proxy,
-                        onChecked = {
-                            proxy = !proxy
-                            PROXY.updateBoolean(proxy)
-                        },
-                        onClick = { showProxyDialog = true },
-                    )
-                }
-                item {
                     PreferenceItem(title = stringResource(R.string.cookies),
                         description = stringResource(R.string.cookies_desc),
                         icon = Icons.Outlined.Cookie,
@@ -106,10 +86,4 @@ fun NetworkPreferences(
                 }
             }
         })
-
-    if (showProxyDialog) {
-        ProxyConfigurationDialog {
-            showProxyDialog = false
-        }
-    }
 }

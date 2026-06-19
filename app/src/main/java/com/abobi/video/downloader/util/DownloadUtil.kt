@@ -318,8 +318,8 @@ object DownloadUtil {
         val videoClips: List<VideoClip> = emptyList(),
         val splitByChapter: Boolean = false,
         val debug: Boolean = DEBUG.getBoolean(),
-        val proxy: Boolean = PROXY.getBoolean(),
-        val proxyUrl: String = PROXY_URL.getString(),
+        val proxy: Boolean = false,
+        val proxyUrl: String = "",
         val newTitle: String = "",
         val userAgentString: String = USER_AGENT_STRING.run {
             if (USER_AGENT.getBoolean()) getString() else ""
@@ -343,6 +343,8 @@ object DownloadUtil {
             rateLimit = false,
             maxDownloadRate = "",
             concurrentFragments = MAX_CONCURRENT_FRAGMENTS,
+            proxy = false,
+            proxyUrl = "",
         )
 
         companion object {
