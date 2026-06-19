@@ -1,8 +1,7 @@
-# Abobi Video Downloader — GitLab CI (plano B, espelha GitHub Actions)
-# Artifact: APK release assinado em app/build/outputs/apk/release/
+# Abobi Video Downloader — GitLab CI (plano B)
+# APK release: job assemble_release → Artifacts
 
-default:
-  image: eclipse-temurin:17-jammy
+image: eclipse-temurin:17-jammy
 
 variables:
   ANDROID_SDK_ROOT: "${CI_PROJECT_DIR}/.android-sdk"
@@ -12,50 +11,43 @@ variables:
 stages:
   - build
 
-.gradle_cache: &gradle_cache
-  cache:
-    key: "${CI_COMMIT_REF_SLUG}-gradle"
-    paths:
-      - .gradle/wrapper/
-      - .gradle/caches/
+cache:
+  key: "${CI_COMMIT_REF_SLUG}-gradle"
+  paths:
+    - .gradle/wrapper/
+    - .gradle/caches/
 
-.android_sdk_setup: &android_sdk_setup
-  - apt-get update -qq
-  - apt-get install -y -qq wget unzip
-  - mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
-  - |
-    if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
-      wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
-      unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
-      mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-    fi
-  - export PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools"
-  - yes | sdkmanager --licenses >/dev/null 2>&1 || true
-  - sdkmanager "platforms;android-34" "build-tools;34.0.0"
-  - chmod +x gradlew
-
-.keystore_setup: &keystore_setup
-  - |
-    if [ -n "${SIGNING_KEY:-}" ]; then
-      echo "$SIGNING_KEY" | base64 -d > abobi-release.jks
-      cat > keystore.properties <<EOF
-    storeFile=abobi-release.jks
-    storePassword=${KEY_STORE_PASSWORD}
-    keyPassword=${KEY_PASSWORD}
-    keyAlias=${ALIAS}
-    EOF
-    fi
+.setup_android_sdk:
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq wget unzip
+    - mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
+    - |
+      if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
+        mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+      fi
+    - export PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools"
+    - yes | sdkmanager --licenses >/dev/null 2>&1 || true
+    - sdkmanager "platforms;android-34" "build-tools;34.0.0"
+    - chmod +x gradlew
 
 assemble_release:
   stage: build
-  <<: *gradle_cache
+  extends: .setup_android_sdk
   rules:
     - if: $CI_COMMIT_BRANCH == "caduco-stable"
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
-    - *android_sdk_setup
-    - *keystore_setup
+    - !reference [.setup_android_sdk, before_script]
+    - |
+      if [ -n "${SIGNING_KEY:-}" ]; then
+        echo "$SIGNING_KEY" | base64 -d > abobi-release.jks
+        printf 'storeFile=abobi-release.jks\nstorePassword=%s\nkeyPassword=%s\nkeyAlias=%s\n' \
+          "${KEY_STORE_PASSWORD}" "${KEY_PASSWORD}" "${ALIAS}" > keystore.properties
+      fi
   script:
     - ./gradlew assembleRelease --no-daemon --stacktrace
   artifacts:
@@ -67,11 +59,9 @@ assemble_release:
 
 assemble_debug:
   stage: build
-  <<: *gradle_cache
+  extends: .setup_android_sdk
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  before_script:
-    - *android_sdk_setup
   script:
     - ./gradlew assembleDebug --no-daemon --stacktrace
   artifacts:
