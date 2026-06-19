@@ -21,9 +21,18 @@
 
 ## Download
 
-APK arm64 (release): baixe o artefato **`release-apks`** no workflow [Build Release APK](https://github.com/abobicaduco/abobi-video-downloader/actions/workflows/android.yml) (branch `caduco-stable` → *Run workflow* ou último run concluído → *Artifacts*).
+APK arm64 (release) — **GitHub (principal)** ou **GitLab (plano B)**:
+
+| Origem | Onde baixar |
+|--------|-------------|
+| **GitHub** | Workflow [Build Release APK](https://github.com/abobicaduco/abobi-video-downloader/actions/workflows/android.yml) → branch `caduco-stable` → artifact `signed-apks` |
+| **GitLab** | Pipeline [abobi-video-downloader](https://gitlab.com/abobicarlo/abobi-video-downloader/-/pipelines) → branch `caduco-stable` → job `assemble_release` → **Artifacts** |
 
 Dentro do zip: `Abobi-Video-Downloader-*-release.apk`.
+
+Repositórios espelhados:
+- GitHub: https://github.com/abobicaduco/abobi-video-downloader
+- GitLab: https://gitlab.com/abobicarlo/abobi-video-downloader
 
 ---
 
