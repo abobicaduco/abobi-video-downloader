@@ -150,6 +150,8 @@ fun WebViewPage(
                         domStorageEnabled = true
                         if (websiteUrl.contains("tiktok.com", ignoreCase = true)) {
                             userAgentString = DownloadFallback.TIKTOK_APP_UA
+                        } else if (websiteUrl.contains("instagram.com", ignoreCase = true)) {
+                            userAgentString = DownloadFallback.MOBILE_UA
                         }
                         USER_AGENT_STRING.updateString(userAgentString)
                     }

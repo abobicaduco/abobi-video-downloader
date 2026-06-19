@@ -183,9 +183,6 @@ object DownloadUtil {
         if (preferences.proxy) {
             enableProxy(preferences.proxyUrl)
         }
-        if (CookieHelper.shouldUseCookies(url)) {
-            enableCookies(url, preferences.userAgentString)
-        }
     }
 
 
@@ -202,9 +199,6 @@ object DownloadUtil {
         }
         if (!skipFormatSorter) {
             applyFormatSorter(preferences, preferences.toFormatSorter())
-        }
-        if (CookieHelper.shouldUseCookies(url)) {
-            enableCookies(url, preferences.userAgentString)
         }
         if (preferences.proxy) {
             enableProxy(preferences.proxyUrl)
@@ -234,6 +228,10 @@ object DownloadUtil {
         playlistItem: Int = 0,
     ): Result<VideoInfo> {
         val normalizedUrl = CookieHelper.normalizeDownloadUrl(url)
+        if (DownloadFallback.detectPlatform(normalizedUrl) == DownloadFallback.Platform.INSTAGRAM) {
+            CookieHelper.refreshCookiesForSite(normalizedUrl)
+                .onFailure { Log.w(TAG, "Instagram cookie refresh failed: ${it.message}") }
+        }
         val platform = DownloadFallback.detectPlatform(normalizedUrl)
         val strategies = DownloadFallback.strategiesFor(
             platform, DownloadFallback.Phase.FETCH_INFO, preferences, normalizedUrl,
@@ -365,12 +363,8 @@ object DownloadUtil {
     ): YoutubeDLRequest {
         val cookiesFile = CookieHelper.cookiesFileForUrl(url) ?: context.getCookiesFile()
         return this.addOption("--cookies", cookiesFile.absolutePath).apply {
-            if (userAgentString.isNotEmpty()) {
-                addOption("--add-header", "User-Agent:$userAgentString")
-            }
-            CookieHelper.buildCookieHeaderForUrl(url)?.let { header ->
-                addOption("--add-header", "Cookie:$header")
-            }
+            val ua = userAgentString.ifEmpty { DownloadFallback.MOBILE_UA }
+            addOption("--add-header", "User-Agent:$ua")
         }
     }
 
@@ -745,9 +739,6 @@ object DownloadUtil {
                 strategy: DownloadFallback.Strategy,
             ): YoutubeDLRequest = YoutubeDLRequest(effectiveUrl).apply {
                 addOption("--no-mtime")
-                if (CookieHelper.shouldUseCookies(effectiveUrl)) {
-                    enableCookies(effectiveUrl, userAgentString)
-                }
                 if (proxy) {
                     enableProxy(proxyUrl)
                 }
@@ -814,11 +805,15 @@ object DownloadUtil {
             }
 
             val platform = DownloadFallback.detectPlatform(url)
+            if (platform == DownloadFallback.Platform.INSTAGRAM) {
+                CookieHelper.refreshCookiesForSite(url)
+                    .onFailure { Log.w(TAG, "Instagram cookie refresh failed: ${it.message}") }
+            }
             val strategies = DownloadFallback.strategiesFor(
                 platform, DownloadFallback.Phase.DOWNLOAD, downloadPreferences, url,
             )
 
-            executeDownloadWithAria2cFallback(
+            val ytdlpResult = executeDownloadWithAria2cFallback(
                 url = url,
                 platform = platform,
                 downloadPreferences = downloadPreferences,
@@ -826,7 +821,36 @@ object DownloadUtil {
                 buildRequest = ::buildDownloadRequest,
                 processId = taskId,
                 progressCallback = progressCallback,
-            ).onFailure { th ->
+            )
+            if (ytdlpResult.isFailure && platform == DownloadFallback.Platform.INSTAGRAM && !extractAudio) {
+                Log.w(
+                    TAG,
+                    "Instagram yt-dlp download failed, trying mirror: ${ytdlpResult.exceptionOrNull()?.message}",
+                )
+                val mirrorPath = buildString {
+                    append(if (privateDirectory) App.privateDownloadDir else videoDownloadDir)
+                    if (subdirectoryExtractor) append("/${videoInfo.extractorKey}")
+                }
+                PlatformAlternativeDownloader.fetchInstagram(url, extractAudio = false)
+                    .fold(
+                        onSuccess = { payload ->
+                            return PlatformAlternativeDownloader.downloadFromVideoInfo(
+                                videoInfo = PlatformAlternativeDownloader.toVideoInfo(
+                                    payload,
+                                    extractAudio = false,
+                                ),
+                                downloadPath = mirrorPath,
+                                preferences = downloadPreferences,
+                                progressCallback = progressCallback,
+                            )
+                        },
+                        onFailure = {
+                            Log.w(TAG, "Instagram mirror download failed: ${it.message}")
+                        },
+                    )
+            }
+
+            ytdlpResult.onFailure { th ->
                 return if (sponsorBlock && th.message?.contains("Unable to communicate with SponsorBlock API") == true) {
                     th.printStackTrace()
                     onFinishDownloading(

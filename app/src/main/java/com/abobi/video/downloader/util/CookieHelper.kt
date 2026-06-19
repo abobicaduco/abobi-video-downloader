@@ -138,6 +138,21 @@ object CookieHelper {
         return master.takeIf { it.exists() && it.length() > 50 }
     }
 
+    fun instagramCookieNames(url: String): Set<String> {
+        val file = cookiesFileForUrl(url) ?: return emptySet()
+        return file.readLines()
+            .filter { line -> line.isNotBlank() && !line.startsWith("#") }
+            .mapNotNull { line -> line.split('\t').getOrNull(5)?.trim() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+    }
+
+    fun hasInstagramSession(url: String): Boolean {
+        val names = instagramCookieNames(url)
+        return names.contains("sessionid") &&
+            (names.contains("csrftoken") || names.contains("ds_user_id"))
+    }
+
     fun hasCookiesForDomain(domain: String): Boolean =
         DownloadUtil.getCookieListFromDatabase().getOrNull()
             ?.any { it.domain.contains(domain, ignoreCase = true) } == true

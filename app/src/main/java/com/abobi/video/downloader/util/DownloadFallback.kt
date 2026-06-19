@@ -136,8 +136,19 @@ object DownloadFallback {
         if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
             strategies.add(
                 Strategy("cookies") { prefs ->
-                    applyUserAgent(this, MOBILE_UA, prefs)
+                    val ua = prefs.userAgentString.ifEmpty { MOBILE_UA }
+                    applyUserAgent(this, ua, prefs)
                     enableCookiesForFallback(prefs, url)
+                    addOption("--add-header", "Referer:https://www.instagram.com/")
+                },
+            )
+            strategies.add(
+                Strategy("cookies-app-api") { prefs ->
+                    val ua = prefs.userAgentString.ifEmpty { MOBILE_UA }
+                    applyUserAgent(this, ua, prefs)
+                    enableCookiesForFallback(prefs, url)
+                    addOption("--sleep-requests", "1")
+                    addOption("--extractor-args", "instagram:api=app")
                     addOption("--add-header", "Referer:https://www.instagram.com/")
                 },
             )
@@ -312,12 +323,8 @@ object DownloadFallback {
         val cookiesFile = CookieHelper.cookiesFileForUrl(url) ?: context.getCookiesFile()
         if (cookiesFile.exists() && cookiesFile.length() > 50) {
             addOption("--cookies", cookiesFile.absolutePath)
-            if (preferences.userAgentString.isNotEmpty()) {
-                addOption("--add-header", "User-Agent:${preferences.userAgentString}")
-            }
-            CookieHelper.buildCookieHeaderForUrl(url)?.let { header ->
-                addOption("--add-header", "Cookie:$header")
-            }
+            val ua = preferences.userAgentString.ifEmpty { MOBILE_UA }
+            addOption("--add-header", "User-Agent:$ua")
         }
     }
 

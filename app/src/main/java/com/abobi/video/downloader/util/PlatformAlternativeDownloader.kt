@@ -131,13 +131,16 @@ object PlatformAlternativeDownloader {
         if (extractAudio) {
             return Result.failure(IOException("Instagram audio-only not supported via mirror"))
         }
+        val normalizedUrl = CookieHelper.normalizeDownloadUrl(url)
         val mirrors = listOf(
+            "https://v3.saveig.app/api/ajaxSearch",
             "https://api.saveig.app/api/ajaxSearch",
             "https://v3.igdownloader.app/api/ajaxSearch",
+            "https://snapinsta.app/api/ajaxSearch",
         )
         var lastError: Throwable? = null
         for (mirrorUrl in mirrors) {
-            val result = fetchInstagramFromMirror(url, mirrorUrl)
+            val result = fetchInstagramFromMirror(normalizedUrl, mirrorUrl)
             if (result.isSuccess) return result
             lastError = result.exceptionOrNull()
             Log.w(TAG, "Instagram mirror $mirrorUrl failed: ${lastError?.message}")
@@ -179,6 +182,8 @@ object PlatformAlternativeDownloader {
         val patterns = listOf(
             Regex(""""url"\s*:\s*"(https://[^"\\]+\.mp4[^"\\]*)""""),
             Regex(""""downloadUrl"\s*:\s*"(https://[^"\\]+)""""),
+            Regex(""""videoUrl"\s*:\s*"(https://[^"\\]+)""""),
+            Regex("""href="(https://[^"]+\.mp4[^"]*)""""),
             Regex("""(https://[^\s"<>\\]+\.mp4[^\s"<>\\]*)"""),
         )
         for (pattern in patterns) {

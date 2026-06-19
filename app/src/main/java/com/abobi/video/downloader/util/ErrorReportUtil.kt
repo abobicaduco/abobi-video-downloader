@@ -27,6 +27,14 @@ object ErrorReportUtil {
             append("Cookies for URL: ")
                 .append(if (CookieHelper.cookiesAvailableForUrl(cookieUrl)) "yes" else "no")
                 .append('\n')
+            if ("instagram.com" in cookieUrl.lowercase()) {
+                append("Instagram sessionid: ")
+                    .append(if (CookieHelper.hasInstagramSession(cookieUrl)) "yes" else "no")
+                    .append('\n')
+                append("Instagram cookie names: ")
+                    .append(CookieHelper.instagramCookieNames(cookieUrl).sorted().joinToString(", "))
+                    .append('\n')
+            }
         }
         append("Cookies file: ")
             .append(if (CookieHelper.cookiesFileAvailable()) "yes" else "no")
