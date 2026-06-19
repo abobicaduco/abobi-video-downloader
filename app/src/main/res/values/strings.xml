@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Abobi Vídeo Downloader</string>
+    <string name="app_name" translatable="false">Abobi Video Downloader</string>
     <string name="video_directory">Video folder</string>
     <string name="extract_audio">Save as audio</string>
     <string name="create_thumbnail">Save thumbnail</string>
@@ -13,14 +13,17 @@
     <string name="yt_dlp_update_fail">Could not install the latest yt-dlp version. Please make sure you are connected to the Internet.</string>
     <string name="fetching_info">Fetching video info…</string>
     <string name="permission_denied">Permission denied</string>
+    <string name="storage_permission_rationale">Storage access is required to save videos and audio to your device.</string>
+    <string name="download_success_toast">Download complete: %1$s</string>
+    <string name="download_file_not_found">Download finished but the file was not saved. Check storage permissions and download folder.</string>
     <string name="download_success_msg">Download finished</string>
     <string name="download_error_msg">Could not download file</string>
     <string name="download_start_msg">Download \"%1$s\"</string>
     <string name="fetch_info_error_msg">Could not fetch video info</string>
-    <string name="fetch_info_error_tiktok">Could not fetch TikTok video info. TikTok often blocks Android downloads — import TikTok cookies in Settings → Network → Cookies, then try again.</string>
-    <string name="fetch_info_error_instagram">Could not fetch Instagram video info. Try importing Instagram cookies in Settings → Network → Cookies.</string>
-    <string name="download_error_tiktok">Could not download from TikTok. TikTok often blocks Android downloads (no curl_cffi impersonation). Import TikTok cookies in Settings → Network → Cookies and try again.</string>
-    <string name="download_error_instagram">Could not download from Instagram. Import Instagram cookies in Settings → Network → Cookies, or open the link in the in-app browser first.</string>
+    <string name="fetch_info_error_tiktok">Could not fetch TikTok video info. All yt-dlp strategies and the automatic mirror fallback were attempted. Import TikTok cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="fetch_info_error_instagram">Could not fetch Instagram video info. All yt-dlp strategies and the automatic mirror fallback were attempted. Try importing Instagram cookies in Settings → Network → Cookies.</string>
+    <string name="download_error_tiktok">Could not download from TikTok. All yt-dlp strategies and the automatic mirror fallback were attempted. Import TikTok cookies in Settings → Network → Cookies and try again.</string>
+    <string name="download_error_instagram">Could not download from Instagram. All yt-dlp strategies and the automatic mirror fallback were attempted. Import Instagram cookies in Settings → Network → Cookies, or open the link in the in-app browser first.</string>
     <string name="general_settings">General</string>
     <string name="language">Display language</string>
     <string name="language_settings">Set display language</string>
@@ -42,11 +45,15 @@
     <string name="remove">Remove</string>
     <string name="delete_file">Delete file</string>
     <string name="about">About</string>
-    <string name="about_page">Version, feedback, auto update</string>
+    <string name="about_page">Developer, version, updates</string>
     <string name="back">Back</string>
     <string name="version">Version</string>
     <string name="release_desc">Look for changelogs and new versions</string>
     <string name="release">Latest release</string>
+    <string name="developer">Developer</string>
+    <string name="developer_desc">AboBI (@abobicaduco)</string>
+    <string name="github_repository">GitHub repository</string>
+    <string name="github_repository_desc">Source code for Abobi Video Downloader</string>
     <string name="readme_desc">Check the GitHub repository and the README</string>
     <string name="readme" translatable="false">README</string>
     <string name="video">Video</string>
@@ -104,9 +111,11 @@
         you have the latest version of yt-dlp before using it.
     </string>
     <string name="download_playlist">Download playlist</string>
-    <string name="download_playlist_desc">Download multiple videos from a playlist</string>
+    <string name="download_playlist_desc">Download all items from public YouTube or YouTube Music playlists, or a full TikTok or Instagram profile</string>
+    <string name="quick_download_type_title">Download as</string>
+    <string name="quick_download_type_desc">Choose video (MP4) or audio (M4A) at the best available quality.</string>
     <string name="defaults">Default</string>
-    <string name="channel_name">Download</string>
+    <string name="channel_name">Abobi Video Downloader</string>
     <string name="channel_description">Notify of downloaded files and progress</string>
     <string name="video_url">Video link</string>
     <string name="download_finish_notification">Download finished. Tap to open.</string>
@@ -124,6 +133,16 @@
     <string name="download_notification">Download notification</string>
     <string name="download_notification_desc">"Notify of downloaded files and progress"</string>
     <string name="fetching_playlist_info">Fetching playlist info…</string>
+    <string name="fetching_profile_info">Fetching profile info…</string>
+    <string name="investigating_collection">Checking videos…</string>
+    <string name="downloadable_count">%1$d of %2$d downloadable</string>
+    <string name="not_downloadable">Not downloadable</string>
+    <string name="select_all_downloadable">Select all downloadable</string>
+    <string name="download_profile">Download profile</string>
+    <string name="profile_selection_desc">Select videos to download from profile \"%1$s\"</string>
+    <string name="collection_investigation_empty">No videos found at this link</string>
+    <string name="collection_investigation_not_collection">This link is a single video, not a playlist or profile</string>
+    <string name="collection_investigation_failed">Could not load videos from this link</string>
     <string name="download_range_selection">Playlist selection</string>
     <string name="download_range_desc">"Specify the range of videos to download from the playlist \"%3$s\" (from %1$d to %2$d)."</string>
     <string name="from">Start</string>
@@ -139,7 +158,7 @@
     <string name="permission_issue_desc">Directories outside Download/ and Documents/ are not supported</string>
     <string name="battery_configuration">Battery configuration</string>
     <string name="battery_configuration_desc">Ignore battery optimization for this app to download in the background</string>
-    <string name="service_title">Abobi Vídeo Downloader is downloading…</string>
+    <string name="service_title">Abobi Video Downloader is downloading…</string>
     <string name="unknown_error">Unknown error</string>
     <string name="translate">Translate</string>
     <string name="translate_desc">Help translate this app on Hosted Weblate</string>
@@ -272,12 +291,20 @@
     <string name="format_selection">Format selection</string>
     <string name="format_selection_desc">Select the format to download before starting the download</string>
     <string name="generate_new_cookies">Generate new cookies</string>
+    <string name="login_tiktok_cookies">Log in to TikTok</string>
+    <string name="login_instagram_cookies">Log in to Instagram</string>
+    <string name="cookies_saved_msg">Cookies saved for downloads</string>
+    <string name="cookies_saved_detail">%1$d cookies saved for %2$s\n%3$s</string>
+    <string name="cookies_storage_path">Cookie files folder:\n%1$s</string>
+    <string name="cookies_profile_stats">%1$d cookies · %2$s</string>
+    <string name="export_site_cookies">Export site cookies</string>
+    <string name="tiktok_cookies_active">TikTok session cookies detected</string>
     <string name="use_cookies">Use Cookies</string>
     <string name="remove_cookie_profile_desc">Remove this entry for \"%1$s\"? Please note that the cookies stored for this site will not be cleared.</string>
     <string name="custom_command_enabled_hint">Some options are unavailable when using custom command</string>
     <string name="how_does_it_work">How does it work?</string>
-    <string name="cookies_usage_msg">Downloading from some sites requires account authentication information. Click \"Generate new cookies\", enter the URL of the website and then log in with your account in the browser page, the app will generate it for you.</string>
-    <string name="custom_command_usage_msg">yt-dlp is a powerful command-line tool for downloading videos. Abobi Vídeo Downloader makes it easier to use yt-dlp by providing an intuitive GUI, presets for common commands, and other additional features.\n\nFor advanced usage of yt-dlp, Abobi Vídeo Downloader allows you to create, save and execute custom command templates directly, just like in a terminal.\n\nWhen using custom commands, most of the GUI options and features would be disabled.</string>
+    <string name="cookies_usage_msg">Downloading from some sites requires account authentication information. Click \"Generate new cookies\", enter the URL of the website and then log in with your account in the browser page, the app will generate it for you. For TikTok, use \"Log in to TikTok\" — session cookies improve yt-dlp success before mirror fallback.</string>
+    <string name="custom_command_usage_msg">yt-dlp is a powerful command-line tool for downloading videos. Abobi Video Downloader makes it easier to use yt-dlp by providing an intuitive GUI, presets for common commands, and other additional features.\n\nFor advanced usage of yt-dlp, Abobi Video Downloader allows you to create, save and execute custom command templates directly, just like in a terminal.\n\nWhen using custom commands, most of the GUI options and features would be disabled.</string>
     <string name="telegram_channel">Telegram channel</string>
     <string name="matrix_space">Matrix space</string>
     <string name="sdcard_directory">SD card folder</string>
@@ -331,9 +358,9 @@
     <string name="clear_all_cookies">Clear all cookies</string>
     <string name="clear_all_cookies_desc">Delete all the cookies stored in the app for good?</string>
     <string name="temporary_directory_desc">Store temporary files in the internal directory</string>
-    <string name="sponsor">Sponsor</string>
-    <string name="sponsor_desc">Support this app by sponsoring on GitHub</string>
-    <string name="sponsor_msg">Abobi Vídeo Downloader will be always free and open source for everyone. If you like it, please consider sponsoring me on GitHub!</string>
+    <string name="sponsor">Support</string>
+    <string name="sponsor_desc">Support Abobi Video Downloader via Pix or GitHub</string>
+    <string name="sponsor_msg">Abobi Video Downloader is free and open source. If you enjoy it, support the project with a Pix donation or star the repo on GitHub (@abobicaduco).</string>
     <string name="feedback">Feedback</string>
     <string name="sponsors">Sponsors</string>
     <string name="audio_format">Audio format</string>
@@ -344,7 +371,7 @@
     <string name="clip_video_desc">Make video clips in the format selection page</string>
     <string name="embed_thumbnail" translatable="false">Embed thumbnail</string>
     <string name="embed_thumbnail_desc" translatable="false">Embed thumbnails into videos</string>
-    <string name="auto_update_disabled_msg">Auto-update is not available for %1$s builds. If you don\'t have %1$s installed on your device, or would like to preview upcoming new features in Abobi Vídeo Downloader, please consider %2$s.</string>
+    <string name="auto_update_disabled_msg">Auto-update is not available for %1$s builds. If you don\'t have %1$s installed on your device, or would like to preview upcoming new features in Abobi Video Downloader, please consider %2$s.</string>
     <string name="switch_to_github_builds">switching to GitHub builds</string>
     <string name="okay">Okay</string>
     <string name="got_it">Got it</string>
@@ -352,6 +379,9 @@
     <string name="no_custom_command_tasks">No custom command tasks</string>
     <string name="msg_from_developer">Message from developer</string>
     <string name="sponsor_msg2">Thank you very much!</string>
+    <string name="pix_key">Pix key</string>
+    <string name="pix_copied">Pix key copied to clipboard</string>
+    <string name="copy_pix_key">Copy Pix key</string>
     <string name="download_video_desc">Download videos from the URL</string>
     <string name="convert_subtitle">Convert subtitles</string>
     <string name="convert_subtitle_desc">Convert the subtitles to another format</string>

@@ -24,7 +24,7 @@
 
 -dontobfuscate
 
--keep class com.junkfood.seal.** { *; }
+-keep class com.abobi.video.downloader.** { *; }
 -keep class com.yausername.** { *; }
 -keep class org.apache.commons.compress.archivers.zip.** { *; }
 

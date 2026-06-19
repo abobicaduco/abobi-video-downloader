@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
-    namespace = "com.junkfood.seal.color"
+    namespace = "com.abobi.video.downloader.color"
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
     }

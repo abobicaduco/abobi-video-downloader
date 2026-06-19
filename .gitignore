@@ -16,3 +16,14 @@
 .cxx
 local.properties
 /keystore.properties
+
+# Local test / CI artifacts (do not commit)
+/artifacts-ci/
+/artifacts-ci-latest/
+/emulator-test-out/
+/build-*.log
+/build-log.txt
+/build-output.*
+/test-dl*
+/ui*.xml
+/uitest-*.xml

@@ -54,7 +54,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 13,
-    versionPatch = 3,
+    versionPatch = 8,
 )
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
@@ -84,7 +84,7 @@ android {
 
 
     defaultConfig {
-        applicationId = "com.abobicaduco.downloader"
+        applicationId = "com.abobi.video.downloader"
         minSdk = 21
         targetSdk = 34
         versionCode = 20130300
@@ -147,6 +147,7 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("debug")
             }
+            resValue("string", "app_name", "Abobi Video Downloader")
         }
         debug {
             isMinifyEnabled = false
@@ -155,7 +156,7 @@ android {
             }
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "Abobi Vídeo Downloader Debug")
+            resValue("string", "app_name", "Abobi Video Downloader Debug")
         }
     }
 
@@ -190,7 +191,7 @@ android {
         generateLocaleConfig = true
     }
 
-    namespace = "com.junkfood.seal"
+    namespace = "com.abobi.video.downloader"
 }
 
 kotlin {

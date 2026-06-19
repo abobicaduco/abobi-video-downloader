@@ -10,13 +10,16 @@
     <string name="yt_dlp_up_to_date">Usando a versão mais recente do yt-dlp</string>
     <string name="fetching_info">Buscando informações do vídeo…</string>
     <string name="permission_denied">Permissão negada</string>
+    <string name="storage_permission_rationale">O acesso ao armazenamento é necessário para salvar vídeos e áudios no seu dispositivo.</string>
+    <string name="download_success_toast">Download concluído: %1$s</string>
+    <string name="download_file_not_found">O download terminou, mas o arquivo não foi salvo. Verifique as permissões de armazenamento e a pasta de download.</string>
     <string name="download_error_msg">O arquivo não pôde ser baixado</string>
     <string name="download_start_msg">Baixar “%1$s”</string>
     <string name="fetch_info_error_msg">As informações do vídeo não foram encontradas</string>
-    <string name="fetch_info_error_tiktok">Não foi possível obter informações do TikTok. O TikTok costuma bloquear downloads no Android — importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
-    <string name="fetch_info_error_instagram">Não foi possível obter informações do Instagram. Importe cookies do Instagram em Configurações → Rede → Cookies e tente novamente.</string>
-    <string name="download_error_tiktok">Não foi possível baixar do TikTok. O TikTok bloqueia downloads no Android (sem impersonação curl_cffi). Importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
-    <string name="download_error_instagram">Não foi possível baixar do Instagram. Importe cookies em Configurações → Rede → Cookies ou abra o link no navegador integrado primeiro.</string>
+    <string name="fetch_info_error_tiktok">Não foi possível obter informações do TikTok. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="fetch_info_error_instagram">Não foi possível obter informações do Instagram. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies do Instagram em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_tiktok">Não foi possível baixar do TikTok. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_instagram">Não foi possível baixar do Instagram. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies em Configurações → Rede → Cookies ou abra o link no navegador integrado primeiro.</string>
     <string name="general_settings">Geral</string>
     <string name="extract_audio">Salvar como áudio</string>
     <string name="settings">Configurações</string>
@@ -36,6 +39,10 @@
     <string name="about">Sobre</string>
     <string name="version">Versão</string>
     <string name="release">Versão mais recente</string>
+    <string name="developer">Desenvolvedor</string>
+    <string name="developer_desc">AboBI (@abobicaduco)</string>
+    <string name="github_repository">Repositório no GitHub</string>
+    <string name="github_repository_desc">Código-fonte do Abobi Video Downloader</string>
     <string name="readme_desc">Verifique o repositório no GitHub e o README</string>
     <string name="video">Vídeo</string>
     <string name="credits">Créditos</string>
@@ -62,7 +69,7 @@
     <string name="start_download">Download</string>
     <string name="settings_before_download">Configurar antes de baixar</string>
     <string name="ytdlp_update">Clique para instalar a versão mais recente do yt-dlp</string>
-    <string name="about_page">Versão, feedback, atualização</string>
+    <string name="about_page">Desenvolvedor, versão, atualizações</string>
     <string name="settings_before_download_desc">Configurar preferências antes de baixar</string>
     <string name="convert_audio">Converter</string>
     <string name="paste_fail_msg">Não foi possível corresponder ao URL na área de transferência</string>
@@ -81,9 +88,11 @@
     <string name="open_settings">Abrir configurações</string>
     <string name="paste_desc">Clique em “Colar” para obter o link do vídeo da sua área de transferência.</string>
     <string name="download_playlist">Baixar playlist</string>
-    <string name="download_playlist_desc">Baixe vários vídeos de uma playlist</string>
+    <string name="download_playlist_desc">Baixe todos os itens de playlists públicas do YouTube ou YouTube Music, ou um perfil inteiro do TikTok ou Instagram</string>
+    <string name="quick_download_type_title">Baixar como</string>
+    <string name="quick_download_type_desc">Escolha vídeo (MP4) ou áudio (M4A) na melhor qualidade disponível.</string>
     <string name="defaults">Padrão</string>
-    <string name="channel_name">Download</string>
+    <string name="channel_name">Abobi Video Downloader</string>
     <string name="channel_description">Notificar sobre arquivos baixados e progresso</string>
     <string name="video_url">Link do vídeo</string>
     <string name="download_finish_notification">Download concluído. Toque para abrir.</string>
@@ -94,6 +103,16 @@
     <string name="show_more_actions">Mostrar mais ações</string>
     <string name="download_notification_desc">Notificar sobre arquivos baixados e progresso</string>
     <string name="fetching_playlist_info">Buscando informações da playlist…</string>
+    <string name="fetching_profile_info">Buscando informações do perfil…</string>
+    <string name="investigating_collection">Verificando vídeos…</string>
+    <string name="downloadable_count">%1$d de %2$d disponíveis</string>
+    <string name="not_downloadable">Indisponível</string>
+    <string name="select_all_downloadable">Selecionar todos disponíveis</string>
+    <string name="download_profile">Baixar perfil</string>
+    <string name="profile_selection_desc">Selecione os vídeos para baixar do perfil \"%1$s\"</string>
+    <string name="collection_investigation_empty">Nenhum vídeo encontrado neste link</string>
+    <string name="collection_investigation_not_collection">Este link é um vídeo único, não uma playlist ou perfil</string>
+    <string name="collection_investigation_failed">Não foi possível carregar os vídeos deste link</string>
     <string name="download_range_desc">Especifique o intervalo de vídeos para download da playlist “%3$s” (de %1$d a %2$d).</string>
     <string name="from">Início</string>
     <string name="to">Fim</string>
@@ -135,7 +154,7 @@
     <string name="close">Fechar</string>
     <string name="download_notification">Notificação de download</string>
     <string name="download_range_selection">Seleção de playlist</string>
-    <string name="service_title">Abobi Vídeo Downloader está fazendo o download…</string>
+    <string name="service_title">Abobi Video Downloader está fazendo o download…</string>
     <string name="prefix">Prefixo</string>
     <string name="open_file">Abrir arquivo</string>
     <string name="restart">Reiniciar</string>
@@ -231,6 +250,14 @@
     <string name="filesize_gb">%.2f GB</string>
     <string name="format_selection">Seleção de formato</string>
     <string name="generate_new_cookies">Gerar novos cookies</string>
+    <string name="login_tiktok_cookies">Entrar no TikTok</string>
+    <string name="login_instagram_cookies">Entrar no Instagram</string>
+    <string name="cookies_saved_msg">Cookies salvos para downloads</string>
+    <string name="cookies_saved_detail">%1$d cookies salvos para %2$s\n%3$s</string>
+    <string name="cookies_storage_path">Pasta dos cookies:\n%1$s</string>
+    <string name="cookies_profile_stats">%1$d cookies · %2$s</string>
+    <string name="export_site_cookies">Exportar cookies do site</string>
+    <string name="tiktok_cookies_active">Cookies de sessão do TikTok detectados</string>
     <string name="video_only">Vídeo (sem áudio)</string>
     <string name="format_selection_desc">Selecione o formato a ser baixado antes de iniciar o download</string>
     <string name="subtitle_sponsorblock">As legendas podem ser mal cronometradas ao remover segmentos do SponsorBlock.</string>
@@ -274,7 +301,7 @@
     <string name="running_tasks">Tarefas em execução</string>
     <string name="show_logs">Mostrar log</string>
     <string name="embed_subtitles_mkv_msg">Para incorporar legendas, os vídeos serão remixados no contêiner mkv. Você pode usar o VLC Media Player ou outros aplicativos compatíveis para assistir a vídeos com legendas incorporadas.</string>
-    <string name="cookies_usage_msg">O download de alguns sites requer informações de autenticação de conta. Clique em \"Gerar novos cookies\", digite o URL do site e faça login com sua conta na página do navegador, o aplicativo irá gerá-lo para você.</string>
+    <string name="cookies_usage_msg">O download de alguns sites requer informações de autenticação de conta. Clique em \"Gerar novos cookies\", digite o URL do site e faça login com sua conta na página do navegador, o aplicativo irá gerá-lo para você. Para o TikTok, use \"Entrar no TikTok\" — os cookies de sessão melhoram o sucesso do yt-dlp antes do fallback por espelho.</string>
     <string name="subtitle_desc">Idiomas, legendas incorporadas, legendas automáticas</string>
     <string name="edit_shortcuts">Editar atalhos</string>
     <string name="edit_shortcuts_desc">Edite os atalhos personalizados que podem ser usados para compor modelos de comando.</string>
@@ -283,11 +310,11 @@
     <string name="audio_quality">Qualidade do áudio</string>
     <string name="format_sorting">Classificação de formatos</string>
     <string name="sponsors">Patrocinadores</string>
-    <string name="sponsor_desc">Apoie este aplicativo patrocinando no GitHub</string>
+    <string name="sponsor_desc">Apoie o Abobi Video Downloader via Pix ou GitHub</string>
     <string name="sponsor">Patrocinador</string>
     <string name="temporary_directory_desc">Armazenar arquivos temporários no diretório interno</string>
     <string name="feedback">Feedback</string>
-    <string name="sponsor_msg">Abobi Vídeo Downloader é gratuito e de código aberto. Se você gostou, considere apoiar o projeto no GitHub!</string>
+    <string name="sponsor_msg">O Abobi Video Downloader é gratuito e de código aberto. Se você gostou, apoie o projeto com um Pix ou dê uma estrela no GitHub (@abobicaduco).</string>
     <string name="audio_format">Formato de áudio</string>
     <string name="no_downloaded_media">Nenhuma mídia baixada</string>
     <string name="beta_features">Beta</string>
@@ -298,8 +325,11 @@
     <string name="okay">Certo</string>
     <string name="got_it">Entendi</string>
     <string name="feature_unavailable">Recurso não disponível</string>
-    <string name="auto_update_disabled_msg">A atualização automática não está disponível para as versões do %1$s. Se você não tem o %1$s instalado em seu dispositivo, ou gostaria de visualizar novos recursos em desenvolvimento no Abobi Vídeo Downloader, por favor, considere %2$s.</string>
+    <string name="auto_update_disabled_msg">A atualização automática não está disponível para as versões do %1$s. Se você não tem o %1$s instalado em seu dispositivo, ou gostaria de visualizar novos recursos em desenvolvimento no Abobi Video Downloader, por favor, considere %2$s.</string>
     <string name="sponsor_msg2">Muito obrigado!</string>
+    <string name="pix_key">Chave Pix</string>
+    <string name="pix_copied">Chave Pix copiada</string>
+    <string name="copy_pix_key">Copiar chave Pix</string>
     <string name="msg_from_developer">Mensagem do desenvolvedor</string>
     <string name="convert_subtitle">Converter legendas</string>
     <string name="convert_subtitle_desc">Converter legendas para outro formato</string>
@@ -344,9 +374,9 @@
     </plurals>
     <string name="ua_header">Cabeçalho de requisição User-Agent</string>
     <string name="export_to_file">Exportar como arquivo</string>
-    <string name="custom_command_usage_msg">O yt-dlp é uma poderosa ferramenta de linha de comando para fazer download de vídeos. O Abobi Vídeo Downloader facilita o uso do yt-dlp, fornecendo uma interface intuitiva, predefinições para comandos comuns e outros recursos adicionais.
+    <string name="custom_command_usage_msg">O yt-dlp é uma poderosa ferramenta de linha de comando para fazer download de vídeos. O Abobi Video Downloader facilita o uso do yt-dlp, fornecendo uma interface intuitiva, predefinições para comandos comuns e outros recursos adicionais.
 \n
-\nPara uso avançado do yt-dlp, o Abobi Vídeo Downloader permite criar, salvar e executar modelos de comandos personalizados diretamente, como em um terminal.
+\nPara uso avançado do yt-dlp, o Abobi Video Downloader permite criar, salvar e executar modelos de comandos personalizados diretamente, como em um terminal.
 \n
 \nAo usar comandos personalizados, a maioria das opções e recursos da GUI seriam desabilitados.</string>
     <string name="presets">Predefinições</string>

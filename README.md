@@ -1,21 +1,20 @@
-# Abobi Vídeo Downloader
+# Abobi Video Downloader
 
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green?logo=android)](https://developer.android.com/)
 [![License: GPL-3.0](https://img.shields.io/badge/Licença-GPL--3.0-blue.svg)](LICENSE)
 
-> Baixador de vídeos e áudio para Android — YouTube, Instagram, TikTok e mais de 1000 outros sites, direto para o seu celular.
-
-Fork do [Seal](https://github.com/JunkFood02/Seal) com branding AboBI e anúncios Start.io.
+> Baixador simples de vídeos e áudio para Android — YouTube, Instagram, TikTok e mais de 1000 sites.
 
 ---
 
 ## Funcionalidades
 
-- **Baixar vídeos** em MP4 com a melhor qualidade disponível
-- **Extrair áudio** em MP3/M4A/OPUS
-- Suporte a **1000+ sites** via yt-dlp (YouTube, Instagram, TikTok, Twitter/X, Facebook...)
-- Interface em **Português, English** e mais de 20 idiomas
+- **Download simples** — cole o link, escolha vídeo ou áudio e baixe
+- **Qualidade automática** — melhor qualidade disponível, até 2160p 60fps
+- Suporte a **1000+ sites** via yt-dlp (YouTube, Instagram, TikTok, Twitter/X, Facebook…)
+- **Cookies** para conteúdo que exige login
 - Histórico de downloads
+- Interface em **Português, English** e mais de 20 idiomas
 - Tema Material You
 
 ---
@@ -24,7 +23,7 @@ Fork do [Seal](https://github.com/JunkFood02/Seal) com branding AboBI e anúncio
 
 APK arm64 (release): baixe o artefato **`release-apks`** no workflow [Build Release APK](https://github.com/abobicaduco/abobi-video-downloader/actions/workflows/android.yml) (branch `caduco-stable` → *Run workflow* ou último run concluído → *Artifacts*).
 
-Dentro do zip: `Abobi-Video-Downloader-1.13.3-*-release.apk`.
+Dentro do zip: `Abobi-Video-Downloader-*-release.apk`.
 
 ---
 
@@ -38,15 +37,15 @@ cd abobi-video-downloader
 ./gradlew assembleRelease -PnoSplits
 ```
 
+Debug local:
+
+```bash
+./gradlew assembleDebug --no-daemon
+```
+
 ---
 
-## Créditos
-
-Baseado no projeto [Seal](https://github.com/JunkFood02/Seal) por JunkFood02 — licença GPL-3.0.
-
----
-
-## Outros Apps
+## Outros Apps AboBI
 
 | App | Descrição |
 |---|---|
@@ -59,11 +58,13 @@ Baseado no projeto [Seal](https://github.com/JunkFood02/Seal) por JunkFood02 —
 
 ## Apoiar
 
-Se o Abobi Vídeo Downloader te ajudou, considera um Pix de qualquer valor!
+Se o Abobi Video Downloader te ajudou, considera um Pix de qualquer valor!
 
 **Chave Pix (aleatória):** `f74458dc-2a36-49bd-9250-1cef4365ebb8`
 
 Site: [abobiferramentas.com](https://abobiferramentas.com)
+
+Repositório: [github.com/abobicaduco/abobi-video-downloader](https://github.com/abobicaduco/abobi-video-downloader)
 
 ---
 
