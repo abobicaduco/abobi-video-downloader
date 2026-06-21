@@ -1,0 +1,64 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platforms;android-35 build-tools;35.0.0
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build release APK (all ABIs)
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Sign APKs
+        id: sign_app
+        continue-on-error: true
+        uses: ilharp/sign-android-release@nightly
+        with:
+          releaseDir: app/build/outputs/apk/release
+          signingKey: ${{ secrets.SIGNING_KEY }}
+          keyAlias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Collect APKs for release
+        id: collect_apks
+        run: |
+          if [ "${{ steps.sign_app.outcome }}" = "success" ]; then
+            APK_GLOB="app/build/outputs/apk/release/*-signed.apk"
+          else
+            APK_GLOB="app/build/outputs/apk/release/*.apk"
+          fi
+          echo "apk_glob=$APK_GLOB" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.collect_apks.outputs.apk_glob }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
