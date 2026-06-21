@@ -719,6 +719,15 @@ object DownloadUtil {
                 if (subdirectoryExtractor) append("/${videoInfo.extractorKey}")
             }
 
+            // Android 16 (API 36)+: FUSE blocks rename() for FFmpeg merge output files in shared
+            // storage. Route yt-dlp output to app-private cache where all file ops work freely,
+            // then copy finished files to the public Downloads destination.
+            val privateTmpDir: File? = if (Build.VERSION.SDK_INT >= 36 && !sdcard && !privateDirectory) {
+                (context.getExternalCacheDir() ?: context.cacheDir)
+                    .resolve("ytdlp/${videoInfo.id}")
+                    .apply { mkdirs() }
+            } else null
+
             val outputPathPrefix = buildString {
                 if (playlistItem != 0 && downloadPlaylist && subdirectoryPlaylistTitle && !videoInfo.playlist.isNullOrEmpty()) {
                     append(PLAYLIST_TITLE_SUBDIRECTORY_PREFIX)
@@ -783,7 +792,7 @@ object DownloadUtil {
                 if (sdcard) {
                     addOption("-P", context.getSdcardTempDir(videoInfo.id).absolutePath)
                 } else {
-                    addOption("-P", downloadPath)
+                    addOption("-P", privateTmpDir?.absolutePath ?: downloadPath)
                 }
                 videoClips.forEach {
                     addOption(
@@ -794,7 +803,7 @@ object DownloadUtil {
                 if (newTitle.isNotEmpty()) {
                     addCommands(listOf("--replace-in-metadata", "title", ".+", newTitle))
                 }
-                if (Build.VERSION.SDK_INT > 23 && !sdcard) {
+                if (Build.VERSION.SDK_INT > 23 && !sdcard && privateTmpDir == null) {
                     addOption("-P", "temp:" + getExternalTempDir())
                 }
                 if (splitByChapter) {
@@ -834,6 +843,7 @@ object DownloadUtil {
                 PlatformAlternativeDownloader.fetchInstagram(url, extractAudio = false)
                     .fold(
                         onSuccess = { payload ->
+                            privateTmpDir?.deleteRecursively()
                             return PlatformAlternativeDownloader.downloadFromVideoInfo(
                                 videoInfo = PlatformAlternativeDownloader.toVideoInfo(
                                     payload,
@@ -850,33 +860,23 @@ object DownloadUtil {
                     )
             }
 
-            // Android 16 (API 36): FUSE blocks os.rename() on shared storage for FFmpeg .temp
-            // files. The download succeeded; the only failing step is the atomic rename.
-            // Recover by stream-copying the .temp file to the destination, then deleting it.
-            if (ytdlpResult.isFailure) {
-                val epermMsg = generateSequence(ytdlpResult.exceptionOrNull()) { it.cause }
-                    .mapNotNull { it.message }
-                    .firstOrNull { "Operation not permitted" in it && ".temp." in it }
-                if (epermMsg != null) {
-                    val m = Regex("""'(.*?\.temp\.[^']+)' -> '([^']+)'""").find(epermMsg)
-                    if (m != null) {
-                        val src = File(m.groupValues[1])
-                        val dst = File(m.groupValues[2])
-                        if (src.exists() && src.length() > 0) {
-                            val copied = runCatching { src.copyTo(dst, overwrite = true); src.delete() }
-                            if (copied.isSuccess) {
-                                Log.d(TAG, "Recovered FUSE rename EPERM: ${src.name}")
-                                return onFinishDownloading(
-                                    preferences = this,
-                                    videoInfo = videoInfo,
-                                    downloadPath = downloadPath,
-                                    sdcardUri = sdcardUri,
-                                )
-                            }
-                            Log.w(TAG, "FUSE rename recovery failed: ${copied.exceptionOrNull()?.message}")
+            // Android 16+: copy completed files from private cache to the public download dir,
+            // then delete the cache regardless of outcome to avoid stale storage.
+            if (privateTmpDir != null) {
+                if (ytdlpResult.isSuccess) {
+                    val destDir = File(downloadPath).also { it.mkdirs() }
+                    privateTmpDir.walkTopDown()
+                        .filter { it.isFile && !it.name.startsWith(".") }
+                        .forEach { f ->
+                            val dest = destDir.resolve(f.relativeTo(privateTmpDir).path)
+                            dest.parentFile?.mkdirs()
+                            runCatching { f.copyTo(dest, overwrite = true) }
+                                .onFailure { e ->
+                                    Log.w(TAG, "Cache→Downloads copy failed ${f.name}: ${e.message}")
+                                }
                         }
-                    }
                 }
+                privateTmpDir.deleteRecursively()
             }
 
             ytdlpResult.onFailure { th ->

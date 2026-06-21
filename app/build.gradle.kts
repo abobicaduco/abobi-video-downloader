@@ -54,7 +54,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 14,
-    versionPatch = 1,
+    versionPatch = 2,
 )
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
@@ -87,7 +87,7 @@ android {
         applicationId = "com.abobi.video.downloader"
         minSdk = 23
         targetSdk = 35
-        versionCode = 20140101
+        versionCode = 20140201
 
         if (splitApks) {
             splits {
