@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage")
+﻿@file:Suppress("UnstableApiUsage")
 
 import com.android.build.api.variant.FilterConfiguration
 import java.io.FileInputStream
@@ -53,8 +53,8 @@ sealed class Version(
 
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
-    versionMinor = 13,
-    versionPatch = 13,
+    versionMinor = 14,
+    versionPatch = 0,
 )
 
 val keystorePropertiesFile: File = rootProject.file("keystore.properties")
@@ -79,15 +79,15 @@ android {
         }
     }
 
-    compileSdk = 34
+    compileSdk = 35
 
 
 
     defaultConfig {
         applicationId = "com.abobi.video.downloader"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 20130313
+        targetSdk = 35
+        versionCode = 20140001
 
         if (splitApks) {
             splits {
