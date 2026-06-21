@@ -850,6 +850,35 @@ object DownloadUtil {
                     )
             }
 
+            // Android 16 (API 36): FUSE blocks os.rename() on shared storage for FFmpeg .temp
+            // files. The download succeeded; the only failing step is the atomic rename.
+            // Recover by stream-copying the .temp file to the destination, then deleting it.
+            if (ytdlpResult.isFailure) {
+                val epermMsg = generateSequence(ytdlpResult.exceptionOrNull()) { it.cause }
+                    .mapNotNull { it.message }
+                    .firstOrNull { "Operation not permitted" in it && ".temp." in it }
+                if (epermMsg != null) {
+                    val m = Regex("""'(.*?\.temp\.[^']+)' -> '([^']+)'""").find(epermMsg)
+                    if (m != null) {
+                        val src = File(m.groupValues[1])
+                        val dst = File(m.groupValues[2])
+                        if (src.exists() && src.length() > 0) {
+                            val copied = runCatching { src.copyTo(dst, overwrite = true); src.delete() }
+                            if (copied.isSuccess) {
+                                Log.d(TAG, "Recovered FUSE rename EPERM: ${src.name}")
+                                return onFinishDownloading(
+                                    preferences = this,
+                                    videoInfo = videoInfo,
+                                    downloadPath = downloadPath,
+                                    sdcardUri = sdcardUri,
+                                )
+                            }
+                            Log.w(TAG, "FUSE rename recovery failed: ${copied.exceptionOrNull()?.message}")
+                        }
+                    }
+                }
+            }
+
             ytdlpResult.onFailure { th ->
                 return if (sponsorBlock && th.message?.contains("Unable to communicate with SponsorBlock API") == true) {
                     th.printStackTrace()
