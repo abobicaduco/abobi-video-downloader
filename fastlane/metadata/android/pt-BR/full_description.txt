@@ -1,0 +1,9 @@
+<b>Recursos</b>
+Baixe vídeos e áudios de plataformas suportadas pelo yt-dlp
+Incorpore metadados e miniatura em arquivos de áudio extraídos
+Baixe todos os vídeos de uma playlist com um clique
+Use o aria2c integrado como gerenciador de downloads
+Incorpore legendas nos vídeos baixados
+Execute comandos yt-dlp personalizados com modelos
+Gerencie downloads e modelos de comandos no próprio app
+Interface fácil de usar com Material Design 3 e tema dinâmico
