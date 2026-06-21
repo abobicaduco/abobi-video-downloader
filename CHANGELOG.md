@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes (starting from v1.7.3) to stable releases will be documented in this file.
 
@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v2.0.0][2.0.0] - unreleased
 
 Under development, please stay tuned!
+
+## [v1.14.0][1.14.0] - 2026-06-21
+
+### Changed
+
+* Target SDK upgraded from 34 to 35 (Android 15)
+* Room updated to 2.6.1
+* Coil updated to 2.7.0
+* Hilt updated to 2.51.1
+* AndroidX Activity updated to 1.9.3
+* AndroidX Lifecycle updated to 2.8.7
+* AndroidX Navigation updated to 2.8.5
+* AndroidX AppCompat updated to stable 1.7.0 (was alpha)
+* Gradle wrapper updated to 8.9
+* Added GitHub Release workflow triggered by version tags
 
 ## [v1.12.1][1.12.1] - 2024-04-17
 
