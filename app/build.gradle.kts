@@ -1,4 +1,4 @@
-﻿@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage")
 
 import com.android.build.api.variant.FilterConfiguration
 import java.io.FileInputStream
@@ -85,7 +85,7 @@ android {
 
     defaultConfig {
         applicationId = "com.abobi.video.downloader"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 20140001
 

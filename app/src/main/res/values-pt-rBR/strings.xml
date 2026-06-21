@@ -20,6 +20,12 @@
     <string name="fetch_info_error_instagram">Não foi possível obter informações do Instagram. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies do Instagram em Configurações → Rede → Cookies e tente novamente.</string>
     <string name="download_error_tiktok">Não foi possível baixar do TikTok. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies do TikTok em Configurações → Rede → Cookies e tente novamente.</string>
     <string name="download_error_instagram">Não foi possível baixar do Instagram. Todas as estratégias do yt-dlp e o fallback automático por espelho foram tentados. Importe cookies em Configurações → Rede → Cookies ou abra o link no navegador integrado primeiro.</string>
+    <string name="fetch_info_error_facebook">Não foi possível obter informações do Facebook. Todas as estratégias do yt-dlp foram tentadas. Importe cookies do Facebook em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_facebook">Não foi possível baixar do Facebook. Todas as estratégias do yt-dlp foram tentadas. Importe cookies do Facebook em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="fetch_info_error_twitter">Não foi possível obter informações do Twitter/X. Todas as estratégias do yt-dlp foram tentadas. Importe cookies do X em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_twitter">Não foi possível baixar do Twitter/X. Todas as estratégias do yt-dlp foram tentadas. Importe cookies do X em Configurações → Rede → Cookies e tente novamente.</string>
+    <string name="download_error_spotify">O Spotify usa criptografia DRM. Somente prévias de 30 segundos podem ser baixadas. Para músicas completas, considere o YouTube Music ou SoundCloud.</string>
+    <string name="download_error_deezer">O Deezer usa criptografia DRM. Somente prévias de clipes podem ser baixadas. Para músicas completas, considere o YouTube Music ou SoundCloud.</string>
     <string name="general_settings">Geral</string>
     <string name="extract_audio">Salvar como áudio</string>
     <string name="settings">Configurações</string>

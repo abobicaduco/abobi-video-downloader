@@ -29,7 +29,7 @@ object DownloadFallback {
     /** yt-dlp `-f` fallback when format sorter fails. */
     const val YOUTUBE_FORMAT_FALLBACK = "bestvideo*+bestaudio/best"
 
-    enum class Platform { TIKTOK, INSTAGRAM, YOUTUBE, OTHER }
+    enum class Platform { TIKTOK, INSTAGRAM, YOUTUBE, FACEBOOK, TWITTER, SPOTIFY, DEEZER, OTHER }
 
     enum class Phase { FETCH_INFO, DOWNLOAD }
 
@@ -48,6 +48,10 @@ object DownloadFallback {
             "tiktok.com" in lower || "vt.tiktok.com" in lower -> Platform.TIKTOK
             "instagram.com" in lower -> Platform.INSTAGRAM
             "youtube.com" in lower || "youtu.be" in lower -> Platform.YOUTUBE
+            "facebook.com" in lower || "fb.watch" in lower || "fb.com" in lower -> Platform.FACEBOOK
+            "twitter.com" in lower || "x.com" in lower || "t.co" in lower -> Platform.TWITTER
+            "open.spotify.com" in lower -> Platform.SPOTIFY
+            "deezer.com" in lower || "dzr.page.link" in lower -> Platform.DEEZER
             else -> Platform.OTHER
         }
     }
@@ -62,7 +66,9 @@ object DownloadFallback {
             Platform.TIKTOK -> tiktokStrategies(preferences, url)
             Platform.INSTAGRAM -> instagramStrategies(preferences, phase, url)
             Platform.YOUTUBE -> youtubeStrategies(phase)
-            Platform.OTHER -> listOf(Strategy("default"))
+            Platform.FACEBOOK -> facebookStrategies(preferences, url)
+            Platform.TWITTER -> twitterStrategies(preferences, url)
+            Platform.SPOTIFY, Platform.DEEZER, Platform.OTHER -> listOf(Strategy("default"))
         }
 
     private fun tiktokStrategies(
@@ -186,6 +192,71 @@ object DownloadFallback {
         return strategies
     }
 
+    private fun facebookStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> {
+        val strategies = mutableListOf<Strategy>()
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            strategies.add(
+                Strategy("cookies") { prefs ->
+                    applyUserAgent(this, MOBILE_UA, prefs)
+                    enableCookiesForFallback(prefs, url)
+                    addOption("--add-header", "Referer:https://www.facebook.com/")
+                },
+            )
+        }
+        strategies.addAll(
+            listOf(
+                Strategy("default"),
+                Strategy("mobile-ua") { prefs ->
+                    applyUserAgent(this, MOBILE_UA, prefs)
+                    addOption("--add-header", "Referer:https://www.facebook.com/")
+                    addOption("--sleep-requests", "1")
+                },
+                Strategy("redirect-auto") { prefs ->
+                    applyUserAgent(this, MOBILE_UA, prefs)
+                    addOption("--extractor-args", "facebook:redirect_method=auto")
+                    addOption("--sleep-requests", "1")
+                },
+                Strategy("desktop-ua") { prefs ->
+                    applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                    addOption("--add-header", "Referer:https://www.facebook.com/")
+                    addOption("--sleep-requests", "1")
+                },
+            ),
+        )
+        return strategies
+    }
+
+    private fun twitterStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> {
+        val strategies = mutableListOf<Strategy>()
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            strategies.add(
+                Strategy("cookies") { prefs ->
+                    applyUserAgent(this, MOBILE_UA, prefs)
+                    enableCookiesForFallback(prefs, url)
+                },
+            )
+        }
+        strategies.addAll(
+            listOf(
+                Strategy("default"),
+                Strategy("native-url") {
+                    addOption("--extractor-args", "twitter:force_native_url")
+                },
+                Strategy("mobile-ua") { prefs ->
+                    applyUserAgent(this, MOBILE_UA, prefs)
+                    addOption("--sleep-requests", "1")
+                },
+            ),
+        )
+        return strategies
+    }
+
     private fun youtubeStrategies(phase: Phase): List<Strategy> = buildList {
         add(Strategy("default-sorter"))
         if (phase == Phase.DOWNLOAD) {
@@ -293,6 +364,16 @@ object DownloadFallback {
                 Phase.FETCH_INFO -> context.getString(R.string.fetch_info_error_instagram)
                 Phase.DOWNLOAD -> context.getString(R.string.download_error_instagram)
             }
+            Platform.FACEBOOK -> when (phase) {
+                Phase.FETCH_INFO -> context.getString(R.string.fetch_info_error_facebook)
+                Phase.DOWNLOAD -> context.getString(R.string.download_error_facebook)
+            }
+            Platform.TWITTER -> when (phase) {
+                Phase.FETCH_INFO -> context.getString(R.string.fetch_info_error_twitter)
+                Phase.DOWNLOAD -> context.getString(R.string.download_error_twitter)
+            }
+            Platform.SPOTIFY -> cause.message ?: context.getString(R.string.download_error_spotify)
+            Platform.DEEZER -> cause.message ?: context.getString(R.string.download_error_deezer)
             else -> cause.message ?: context.getString(
                 if (phase == Phase.FETCH_INFO) R.string.fetch_info_error_msg
                 else R.string.download_error_msg,

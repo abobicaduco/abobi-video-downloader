@@ -47,12 +47,28 @@ object UrlLinkDetector {
                     LinkClassification(LinkKind.SINGLE_VIDEO, platform)
                 }
 
+            DownloadFallback.Platform.FACEBOOK ->
+                if (isFacebookProfile(lower)) {
+                    LinkClassification(LinkKind.PROFILE, platform)
+                } else {
+                    LinkClassification(LinkKind.SINGLE_VIDEO, platform)
+                }
+
+            DownloadFallback.Platform.TWITTER ->
+                if (isTwitterProfile(lower)) {
+                    LinkClassification(LinkKind.PROFILE, platform)
+                } else {
+                    LinkClassification(LinkKind.SINGLE_VIDEO, platform)
+                }
+
             DownloadFallback.Platform.OTHER ->
                 if (isYoutubePlaylist(lower)) {
                     LinkClassification(LinkKind.PLAYLIST, DownloadFallback.Platform.YOUTUBE)
                 } else {
                     LinkClassification(LinkKind.SINGLE_VIDEO, platform)
                 }
+
+            else -> LinkClassification(LinkKind.SINGLE_VIDEO, platform)
         }
     }
 
@@ -70,6 +86,23 @@ object UrlLinkDetector {
         if (Regex("tiktok\\.com/@[\\w.]+/?$").containsMatchIn(lower)) return true
         if (Regex("tiktok\\.com/@[\\w.]+/?\\?").containsMatchIn(lower)) return true
         if ("/user/" in lower && "/video/" !in lower) return true
+        return false
+    }
+
+    private fun isFacebookProfile(lower: String): Boolean {
+        if ("/videos/" in lower || "/watch" in lower || "/reel/" in lower || "/reels/" in lower) return false
+        if ("/posts/" in lower || "/photo/" in lower || "/photos/" in lower) return false
+        val profile = Regex("facebook\\.com/([A-Za-z0-9._]+)/?(?:\\?.*)?$").find(lower) ?: return false
+        val segment = profile.groupValues[1]
+        return segment !in setOf("watch", "video", "reel", "reels", "share", "groups", "pages", "events", "gaming")
+    }
+
+    private fun isTwitterProfile(lower: String): Boolean {
+        if ("/status/" in lower) return false
+        if (Regex("(?:twitter|x)\\.com/([A-Za-z0-9_]+)/?(?:\\?.*)?$").containsMatchIn(lower)) {
+            val segment = Regex("(?:twitter|x)\\.com/([A-Za-z0-9_]+)").find(lower)?.groupValues?.get(1) ?: return false
+            return segment !in setOf("home", "explore", "notifications", "messages", "search", "i", "intent")
+        }
         return false
     }
 

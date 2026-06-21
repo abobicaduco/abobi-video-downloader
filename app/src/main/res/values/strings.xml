@@ -24,6 +24,12 @@
     <string name="fetch_info_error_instagram">Could not fetch Instagram video info. All yt-dlp strategies and the automatic mirror fallback were attempted. Try importing Instagram cookies in Settings → Network → Cookies.</string>
     <string name="download_error_tiktok">Could not download from TikTok. All yt-dlp strategies and the automatic mirror fallback were attempted. Import TikTok cookies in Settings → Network → Cookies and try again.</string>
     <string name="download_error_instagram">Could not download from Instagram. All yt-dlp strategies and the automatic mirror fallback were attempted. Import Instagram cookies in Settings → Network → Cookies, or open the link in the in-app browser first.</string>
+    <string name="fetch_info_error_facebook">Could not fetch Facebook video info. All yt-dlp strategies were attempted. Import Facebook cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="download_error_facebook">Could not download from Facebook. All yt-dlp strategies were attempted. Import Facebook cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="fetch_info_error_twitter">Could not fetch Twitter/X video info. All yt-dlp strategies were attempted. Import X cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="download_error_twitter">Could not download from Twitter/X. All yt-dlp strategies were attempted. Import X cookies in Settings → Network → Cookies, then try again.</string>
+    <string name="download_error_spotify">Spotify uses DRM encryption. Only 30-second previews can be downloaded. For full tracks, consider YouTube Music or SoundCloud.</string>
+    <string name="download_error_deezer">Deezer uses DRM encryption. Only preview clips can be downloaded. For full tracks, consider YouTube Music or SoundCloud.</string>
     <string name="general_settings">General</string>
     <string name="language">Display language</string>
     <string name="language_settings">Set display language</string>

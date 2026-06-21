@@ -141,8 +141,8 @@ class QuickDownloadActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        intent?.let { handleShareIntent(it) }
+    override fun onNewIntent(intent: Intent) {
+        handleShareIntent(intent)
         super.onNewIntent(intent)
     }
 }

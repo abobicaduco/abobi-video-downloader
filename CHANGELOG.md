@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes (starting from v1.7.3) to stable releases will be documented in this file.
 
