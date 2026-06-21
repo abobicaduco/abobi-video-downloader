@@ -11,6 +11,7 @@ import com.abobi.video.downloader.database.objects.CommandTemplate
 import com.abobi.video.downloader.database.objects.CookieProfile
 import com.abobi.video.downloader.database.objects.DownloadedVideoInfo
 import com.abobi.video.downloader.database.objects.OptionShortcut
+import com.abobi.video.downloader.util.PreferenceUtil.getBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -22,6 +23,7 @@ object DatabaseUtil {
     ).build()
     private val dao = db.videoInfoDao()
     fun insertInfo(vararg infoList: DownloadedVideoInfo) {
+        if (PRIVATE_MODE.getBoolean()) return
         applicationScope.launch(Dispatchers.IO) {
             infoList.forEach { dao.insertInfoDistinctByPath(it) }
         }

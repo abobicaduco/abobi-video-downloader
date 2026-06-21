@@ -350,7 +350,6 @@ object DownloadUtil {
             fun forQuickDownload(extractAudio: Boolean): DownloadPreferences =
                 DownloadPreferences(extractAudio = extractAudio).withAbobiFixedFormats().copy(
                     createThumbnail = false,
-                    privateMode = false,
                     debug = false,
                     mergeToMkv = false,
                 )

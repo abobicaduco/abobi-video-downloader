@@ -197,7 +197,7 @@ private val BooleanPreferenceDefaults = mapOf(
     PLAYLIST to true,
     THUMBNAIL to false,
     DEBUG to false,
-    PRIVATE_MODE to false,
+    PRIVATE_MODE to true,
     DISABLE_PREVIEW to false,
     AUDIO_CONVERT to true,
     DOWNLOAD_ARCHIVE to false,
