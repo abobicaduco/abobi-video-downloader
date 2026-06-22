@@ -29,7 +29,13 @@ object DownloadFallback {
     /** yt-dlp `-f` fallback when format sorter fails. */
     const val YOUTUBE_FORMAT_FALLBACK = "bestvideo*+bestaudio/best"
 
-    enum class Platform { TIKTOK, INSTAGRAM, YOUTUBE, FACEBOOK, TWITTER, SPOTIFY, DEEZER, OTHER }
+    enum class Platform {
+        TIKTOK, INSTAGRAM, YOUTUBE, FACEBOOK, TWITTER,
+        SPOTIFY, DEEZER, SOUNDCLOUD,
+        TWITCH, VIMEO, REDDIT, DAILYMOTION,
+        RUMBLE, THREADS, PINTEREST, XVIDEOS, PORNHUB,
+        OTHER,
+    }
 
     enum class Phase { FETCH_INFO, DOWNLOAD }
 
@@ -47,11 +53,21 @@ object DownloadFallback {
         return when {
             "tiktok.com" in lower || "vt.tiktok.com" in lower -> Platform.TIKTOK
             "instagram.com" in lower -> Platform.INSTAGRAM
-            "youtube.com" in lower || "youtu.be" in lower -> Platform.YOUTUBE
+            "youtube.com" in lower || "youtu.be" in lower || "music.youtube.com" in lower -> Platform.YOUTUBE
             "facebook.com" in lower || "fb.watch" in lower || "fb.com" in lower -> Platform.FACEBOOK
             "twitter.com" in lower || "x.com" in lower || "t.co" in lower -> Platform.TWITTER
             "open.spotify.com" in lower -> Platform.SPOTIFY
             "deezer.com" in lower || "dzr.page.link" in lower -> Platform.DEEZER
+            "soundcloud.com" in lower -> Platform.SOUNDCLOUD
+            "twitch.tv" in lower || "clips.twitch.tv" in lower -> Platform.TWITCH
+            "vimeo.com" in lower -> Platform.VIMEO
+            "reddit.com" in lower || "v.redd.it" in lower || "redd.it" in lower -> Platform.REDDIT
+            "dailymotion.com" in lower || "dai.ly" in lower -> Platform.DAILYMOTION
+            "rumble.com" in lower -> Platform.RUMBLE
+            "threads.net" in lower -> Platform.THREADS
+            "pinterest.com" in lower || "pin.it" in lower || "pinterest.co" in lower -> Platform.PINTEREST
+            "xvideos.com" in lower || "xvideos2.com" in lower -> Platform.XVIDEOS
+            "pornhub.com" in lower || "ph.pornhub.com" in lower -> Platform.PORNHUB
             else -> Platform.OTHER
         }
     }
@@ -70,7 +86,17 @@ object DownloadFallback {
             Platform.TWITTER -> twitterStrategies(preferences, url)
             Platform.SPOTIFY -> metaSearchStrategies(url, Platform.SPOTIFY)
             Platform.DEEZER -> metaSearchStrategies(url, Platform.DEEZER)
-            Platform.OTHER -> listOf(Strategy("default"))
+            Platform.SOUNDCLOUD -> soundcloudStrategies(preferences, url)
+            Platform.TWITCH -> twitchStrategies(preferences, url)
+            Platform.VIMEO -> vimeoStrategies(preferences, url)
+            Platform.REDDIT -> redditStrategies(preferences, url)
+            Platform.DAILYMOTION -> dailymotionStrategies(preferences, url)
+            Platform.RUMBLE -> rumbleStrategies(preferences)
+            Platform.THREADS -> threadsStrategies(preferences, url)
+            Platform.PINTEREST -> pinterestStrategies(preferences)
+            Platform.XVIDEOS -> xvideosStrategies(preferences)
+            Platform.PORNHUB -> pornhubStrategies(preferences)
+            Platform.OTHER -> otherStrategies(preferences)
         }
 
     private fun tiktokStrategies(
@@ -303,7 +329,7 @@ object DownloadFallback {
         processId: String? = null,
         progressCallback: ((Float, Long, String) -> Unit)? = null,
     ): Result<YoutubeDLResponse> {
-        if (strategies.isEmpty() || platform == Platform.OTHER) {
+        if (strategies.isEmpty()) {
             val defaultStrategy = Strategy("default")
             return runCatching {
                 YoutubeDL.getInstance().execute(
@@ -411,6 +437,181 @@ object DownloadFallback {
         }
     }
 
+    // ── SoundCloud ────────────────────────────────────────────────────────────
+    private fun soundcloudStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> = buildList {
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            add(Strategy("cookies") { prefs -> enableCookiesForFallback(prefs, url) })
+        }
+        addAll(listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs -> applyUserAgent(this, MOBILE_UA, prefs) },
+            Strategy("desktop-ua") { prefs -> applyUserAgent(this, DESKTOP_CHROME_UA, prefs) },
+        ))
+    }
+
+    // ── Twitch ────────────────────────────────────────────────────────────────
+    private fun twitchStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> = buildList {
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            add(Strategy("cookies") { prefs -> enableCookiesForFallback(prefs, url) })
+        }
+        addAll(listOf(
+            Strategy("default"),
+            Strategy("no-playlist") { addOption("--no-playlist") },
+            Strategy("mobile-ua-no-playlist") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--no-playlist")
+            },
+        ))
+    }
+
+    // ── Vimeo ─────────────────────────────────────────────────────────────────
+    private fun vimeoStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> = buildList {
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            add(Strategy("cookies") { prefs ->
+                enableCookiesForFallback(prefs, url)
+                addOption("--add-header", "Referer:https://vimeo.com/")
+            })
+        }
+        addAll(listOf(
+            Strategy("default"),
+            Strategy("desktop-ua") { prefs ->
+                applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                addOption("--add-header", "Referer:https://vimeo.com/")
+            },
+            Strategy("mobile-ua") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--add-header", "Referer:https://vimeo.com/")
+            },
+        ))
+    }
+
+    // ── Reddit / v.redd.it ───────────────────────────────────────────────────
+    private fun redditStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> = buildList {
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            add(Strategy("cookies") { prefs -> enableCookiesForFallback(prefs, url) })
+        }
+        addAll(listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--add-header", "Referer:https://www.reddit.com/")
+            },
+            Strategy("desktop-ua") { prefs ->
+                applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                addOption("--add-header", "Referer:https://www.reddit.com/")
+            },
+        ))
+    }
+
+    // ── Dailymotion ───────────────────────────────────────────────────────────
+    private fun dailymotionStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> {
+        val embedUrl = toDailymotionEmbedUrl(url)
+        return buildList {
+            addAll(listOf(
+                Strategy("default"),
+                Strategy("mobile-ua") { prefs -> applyUserAgent(this, MOBILE_UA, prefs) },
+                Strategy("desktop-ua") { prefs -> applyUserAgent(this, DESKTOP_CHROME_UA, prefs) },
+            ))
+            if (embedUrl != url) {
+                add(Strategy("embed-url", urlTransform = { embedUrl }))
+            }
+        }
+    }
+
+    // ── Rumble ────────────────────────────────────────────────────────────────
+    private fun rumbleStrategies(preferences: DownloadUtil.DownloadPreferences): List<Strategy> =
+        listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs -> applyUserAgent(this, MOBILE_UA, prefs) },
+            Strategy("desktop-ua") { prefs -> applyUserAgent(this, DESKTOP_CHROME_UA, prefs) },
+        )
+
+    // ── Threads ───────────────────────────────────────────────────────────────
+    private fun threadsStrategies(
+        preferences: DownloadUtil.DownloadPreferences,
+        url: String,
+    ): List<Strategy> = buildList {
+        if (CookieHelper.cookiesAvailableForUrl(url) || CookieHelper.cookiesFileAvailable()) {
+            add(Strategy("cookies") { prefs ->
+                enableCookiesForFallback(prefs, url)
+                addOption("--add-header", "Referer:https://www.threads.net/")
+            })
+        }
+        addAll(listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--add-header", "Referer:https://www.threads.net/")
+            },
+        ))
+    }
+
+    // ── Pinterest ─────────────────────────────────────────────────────────────
+    private fun pinterestStrategies(preferences: DownloadUtil.DownloadPreferences): List<Strategy> =
+        listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs -> applyUserAgent(this, MOBILE_UA, prefs) },
+            Strategy("desktop-ua") { prefs ->
+                applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                addOption("--add-header", "Referer:https://www.pinterest.com/")
+            },
+        )
+
+    // ── XVideos ───────────────────────────────────────────────────────────────
+    private fun xvideosStrategies(preferences: DownloadUtil.DownloadPreferences): List<Strategy> =
+        listOf(
+            Strategy("default"),
+            Strategy("desktop-ua") { prefs ->
+                applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                addOption("--add-header", "Referer:https://www.xvideos.com/")
+            },
+            Strategy("mobile-ua") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--add-header", "Referer:https://www.xvideos.com/")
+            },
+        )
+
+    // ── Pornhub ───────────────────────────────────────────────────────────────
+    private fun pornhubStrategies(preferences: DownloadUtil.DownloadPreferences): List<Strategy> =
+        listOf(
+            Strategy("default"),
+            Strategy("desktop-ua") { prefs ->
+                applyUserAgent(this, DESKTOP_CHROME_UA, prefs)
+                addOption("--add-header", "Referer:https://www.pornhub.com/")
+            },
+            Strategy("mobile-ua") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--add-header", "Referer:https://www.pornhub.com/")
+            },
+        )
+
+    // ── Generic fallback (unknown platform) ───────────────────────────────────
+    private fun otherStrategies(preferences: DownloadUtil.DownloadPreferences): List<Strategy> =
+        listOf(
+            Strategy("default"),
+            Strategy("mobile-ua") { prefs -> applyUserAgent(this, MOBILE_UA, prefs) },
+            Strategy("desktop-ua") { prefs -> applyUserAgent(this, DESKTOP_CHROME_UA, prefs) },
+            Strategy("mobile-ua-sleep") { prefs ->
+                applyUserAgent(this, MOBILE_UA, prefs)
+                addOption("--sleep-requests", "1")
+            },
+        )
+
     /**
      * Fetches the og:title of a Spotify/Deezer page and redirects to a YouTube Music search.
      * fetchOgTitle executes at most once per download attempt thanks to the lazy delegate.
@@ -476,6 +677,15 @@ object DownloadFallback {
             Log.w(TAG, "fetchOgTitle($url): ${e.message}")
             null
         }
+
+    /** Convert a standard Dailymotion URL to its embed endpoint. */
+    fun toDailymotionEmbedUrl(url: String): String {
+        val id = Regex("dailymotion\\.com/(?:video|hub)/([a-zA-Z0-9]+)", RegexOption.IGNORE_CASE)
+            .find(url)?.groupValues?.getOrNull(1)
+            ?: Regex("dai\\.ly/([a-zA-Z0-9]+)", RegexOption.IGNORE_CASE)
+                .find(url)?.groupValues?.getOrNull(1)
+        return if (id != null) "https://www.dailymotion.com/embed/video/$id" else url
+    }
 
     /** Convert /reel/ID or /p/ID URLs to embed endpoints. */
     fun toInstagramEmbedUrl(url: String): String {
