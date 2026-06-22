@@ -68,7 +68,9 @@ object DownloadFallback {
             Platform.YOUTUBE -> youtubeStrategies(phase)
             Platform.FACEBOOK -> facebookStrategies(preferences, url)
             Platform.TWITTER -> twitterStrategies(preferences, url)
-            Platform.SPOTIFY, Platform.DEEZER, Platform.OTHER -> listOf(Strategy("default"))
+            Platform.SPOTIFY -> metaSearchStrategies(url, Platform.SPOTIFY)
+            Platform.DEEZER -> metaSearchStrategies(url, Platform.DEEZER)
+            Platform.OTHER -> listOf(Strategy("default"))
         }
 
     private fun tiktokStrategies(
@@ -408,6 +410,72 @@ object DownloadFallback {
             addOption("--add-header", "User-Agent:$ua")
         }
     }
+
+    /**
+     * Fetches the og:title of a Spotify/Deezer page and redirects to a YouTube Music search.
+     * fetchOgTitle executes at most once per download attempt thanks to the lazy delegate.
+     */
+    private fun metaSearchStrategies(url: String, platform: Platform): List<Strategy> {
+        val ytmQuery: String by lazy {
+            val raw = fetchOgTitle(url)?.let { stripPlatformSuffix(it, platform) }
+            if (!raw.isNullOrBlank()) {
+                Log.d(TAG, "[$platform] og:title → '$raw'")
+                "ytmsearch1:$raw"
+            } else {
+                Log.w(TAG, "[$platform] og:title empty, passing original URL")
+                url
+            }
+        }
+        return listOf(
+            Strategy(name = "ytm-search", urlTransform = { ytmQuery }),
+            Strategy(
+                name = "yt-search",
+                urlTransform = { ytmQuery.replace("ytmsearch1:", "ytsearch1:") },
+            ),
+        )
+    }
+
+    private fun stripPlatformSuffix(title: String, platform: Platform): String =
+        when (platform) {
+            Platform.SPOTIFY -> title
+                .replace(Regex("""\s*[|·]\s*Spotify\s*$""", setOf(RegexOption.IGNORE_CASE)), "")
+            Platform.DEEZER -> title
+                .replace(Regex("""\s*[|]\s*Deezer\s*$""", setOf(RegexOption.IGNORE_CASE)), "")
+            else -> title
+        }.trim()
+
+    /** Fetches the og:title meta tag from a URL via a blocking HTTP request (runs on a worker thread). */
+    private fun fetchOgTitle(url: String): String? =
+        try {
+            val conn = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+            conn.setRequestProperty("User-Agent", DESKTOP_CHROME_UA)
+            conn.connectTimeout = 8_000
+            conn.readTimeout = 8_000
+            if (conn.responseCode != 200) {
+                conn.disconnect()
+                null
+            } else {
+                val body = conn.inputStream.bufferedReader().readText()
+                conn.disconnect()
+                val ogTitle = Regex(
+                    """<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']""",
+                    RegexOption.IGNORE_CASE,
+                ).find(body)?.groupValues?.getOrNull(1)
+                    ?: Regex(
+                        """<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']""",
+                        RegexOption.IGNORE_CASE,
+                    ).find(body)?.groupValues?.getOrNull(1)
+                ogTitle
+                    ?.replace("&amp;", "&")
+                    ?.replace("&quot;", "\"")
+                    ?.replace("&#39;", "'")
+                    ?.replace("&lt;", "<")
+                    ?.replace("&gt;", ">")
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "fetchOgTitle($url): ${e.message}")
+            null
+        }
 
     /** Convert /reel/ID or /p/ID URLs to embed endpoints. */
     fun toInstagramEmbedUrl(url: String): String {
