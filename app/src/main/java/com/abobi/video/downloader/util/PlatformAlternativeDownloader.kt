@@ -25,6 +25,9 @@ object PlatformAlternativeDownloader {
 
     const val ALT_EXTRACTOR_KEY = "AbobiMirror"
 
+    // 64 KB reduz o nº de syscalls de I/O vs. 8 KB → download direto mais eficiente.
+    private const val DOWNLOAD_BUFFER_SIZE = 64 * 1024
+
     private val jsonFormat = Json { ignoreUnknownKeys = true }
 
     private val client = OkHttpClient.Builder()
@@ -293,20 +296,33 @@ object PlatformAlternativeDownloader {
             }
             val body = response.body ?: throw IOException("Empty download body")
             val totalBytes = body.contentLength()
-            body.byteStream().use { input ->
-                outputFile.outputStream().use { output ->
-                    val buffer = ByteArray(8192)
-                    var downloaded = 0L
-                    var read: Int
-                    while (input.read(buffer).also { read = it } != -1) {
-                        output.write(buffer, 0, read)
-                        downloaded += read
-                        if (totalBytes > 0) {
-                            val progress = downloaded.toFloat() / totalBytes * 100f
-                            progressCallback?.invoke(progress, 0L, outputFile.name)
+            try {
+                body.byteStream().use { input ->
+                    outputFile.outputStream().use { output ->
+                        val buffer = ByteArray(DOWNLOAD_BUFFER_SIZE)
+                        var downloaded = 0L
+                        var read: Int
+                        // Só reporta quando o % inteiro muda — evita milhares de
+                        // updates de UI por download (jank no progresso).
+                        var lastPercent = -1
+                        while (input.read(buffer).also { read = it } != -1) {
+                            output.write(buffer, 0, read)
+                            downloaded += read
+                            if (totalBytes > 0 && progressCallback != null) {
+                                val percent = (downloaded * 100 / totalBytes).toInt()
+                                if (percent != lastPercent) {
+                                    lastPercent = percent
+                                    progressCallback.invoke(percent.toFloat(), 0L, outputFile.name)
+                                }
+                            }
                         }
+                        output.flush()
                     }
                 }
+            } catch (e: Throwable) {
+                // Remove arquivo parcial/corrompido para não vazar p/ a galeria.
+                runCatching { if (outputFile.exists()) outputFile.delete() }
+                throw e
             }
             progressCallback?.invoke(100f, 0L, outputFile.name)
         }

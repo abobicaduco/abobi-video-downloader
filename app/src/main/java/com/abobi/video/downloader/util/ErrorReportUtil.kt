@@ -7,6 +7,8 @@ import com.abobi.video.downloader.App.Companion.context
 import com.abobi.video.downloader.R
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.Collections
+import java.util.IdentityHashMap
 
 object ErrorReportUtil {
 
@@ -51,7 +53,8 @@ object ErrorReportUtil {
 
     fun extractDebugDetails(th: Throwable): String? {
         var current: Throwable? = th
-        while (current != null) {
+        val seen = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
+        while (current != null && seen.add(current)) {
             if (current is DownloadDebugException && current.debugDetails.isNotBlank()) {
                 return current.debugDetails
             }
@@ -63,7 +66,8 @@ object ErrorReportUtil {
     private fun formatThrowableChain(th: Throwable): String = buildString {
         var current: Throwable? = th
         var depth = 0
-        while (current != null) {
+        val seen = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
+        while (current != null && seen.add(current)) {
             if (depth > 0) {
                 append("\n--- Caused by: ")
             } else {
